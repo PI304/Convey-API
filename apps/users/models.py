@@ -50,15 +50,18 @@ class UserManager(BaseUserManager):
         return self.create_user(email=email, password=password, **extra_fields)
 
 
-class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
-    class UserType(models.IntegerChoices):
-        ADMIN = 0, "admin"
-        SUBJECT = 1, "subject"
+class UserType(models.IntegerChoices):
+    ADMIN = 0, "admin"
+    SUBJECT = 1, "subject"
 
+
+class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
     id = models.BigAutoField(primary_key=True)
     email = models.EmailField(max_length=64, unique=True, null=False)
     name = models.CharField(max_length=10, null=False)
-    role = models.PositiveSmallIntegerField(null=False, choices=UserType.choices)
+    role = models.PositiveSmallIntegerField(
+        null=False, default=UserType.ADMIN, choices=UserType.choices, editable=False
+    )
 
     is_staff = models.BooleanField(
         default=False,
@@ -74,7 +77,27 @@ class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
         unique_together = ["email"]
 
     def __str__(self):
-        return f"[{self.id}] {self.get_username()}"
+        return f"[{self.id}] {self.email}"
 
     def __repr__(self):
-        return f"User({self.id}, {self.get_username()})"
+        return f"User({self.id}, {self.email})"
+
+
+class AppUser(TimeStampMixin):
+    id = models.BigAutoField(primary_key=True)
+    email = models.EmailField(max_length=64, unique=True, null=False)
+    name = models.CharField(max_length=10, null=False)
+    role = models.PositiveSmallIntegerField(
+        null=False, default=UserType.SUBJECT, choices=UserType.choices, editable=False
+    )
+    social_provider = models.CharField(null=False, default="kakao", max_length=15)
+
+    class Meta:
+        db_table = "app_user"
+        unique_together = ["email"]
+
+    def __str__(self):
+        return f"[{self.id}] {self.email}"
+
+    def __repr__(self):
+        return f"User({self.id}, {self.email})"
