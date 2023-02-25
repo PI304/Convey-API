@@ -162,9 +162,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "PORT": 3306,
-        "NAME": "convey",
-        "USER": "root",
-        "HOST": "0.0.0.0",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "HOST": os.environ.get("DB_HOST"),
         "PASSWORD": os.environ.get("DB_PASSWORD"),
         "CONN_MAX_AGE": 60 * 10,  # 10 minutes
         "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
