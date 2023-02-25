@@ -18,7 +18,7 @@ from apps.surveys.models import SurveySector
     ),
 )
 class SurveyListView(generics.ListCreateAPIView):
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -73,7 +73,7 @@ class SurveyListView(generics.ListCreateAPIView):
             ),
         ),
     )
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         pass
 
 
@@ -83,7 +83,7 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
     @swagger_auto_schema(
         operation_summary="survey의 하위 sector 들을 모두 가져옵니다",
     )
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         pass
 
     @swagger_auto_schema(

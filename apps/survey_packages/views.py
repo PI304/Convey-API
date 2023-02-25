@@ -59,10 +59,10 @@ class SurveyPackageListView(generics.ListCreateAPIView):
             409: "Verification code does not match",
         },
     )
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         pass
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         pass
 
 
@@ -76,7 +76,7 @@ class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
             409: "Verification code does not match",
         },
     )
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         pass
 
     @swagger_auto_schema(

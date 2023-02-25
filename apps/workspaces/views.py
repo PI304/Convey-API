@@ -1,10 +1,9 @@
 from typing import Any
 
-from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, mixins
+from rest_framework import generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -16,7 +15,7 @@ from rest_framework.response import Response
     ),
 )
 class WorkspaceListView(generics.ListCreateAPIView):
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         pass
 
     @swagger_auto_schema(
