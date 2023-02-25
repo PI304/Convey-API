@@ -1,13 +1,5 @@
 # Convey API
 
-## 유의사항
-
-1. [Test Server](##1.-Test-Server)
-2. [Schemas](##2.-Schemas)
-3. [Sector 와 문제 유형](##3.-Sector-와-문제-유형)
-4. [협업 방법](##4.-협업-방법)
-5. [코드 컨벤션](##5.-코드-컨벤션)
-
 ## 1. Test Server
 
 [테스트 서버 API Doc 보기](http://13.125.243.32/api/swagger/)
@@ -38,7 +30,7 @@ kick-off 서베이 응답 후에는 해당 workspace 의 정보가 반환됩니�
 {
    "id": 1,
    "name": "some workspace name",
-   "someOtherFields": "some other fields",
+   "someOtherFields": "some other fields"
 }
 ```
 
@@ -69,5 +61,5 @@ kick-off 서베이 응답 후에는 해당 workspace 의 정보가 반환됩니�
 
 
 
-## 3. Sector 와 문제 유형
+## 3.Sector 와 문제 유형
 업데이트 예정입니다.
