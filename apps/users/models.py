@@ -1,4 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.db import models
 import logging
@@ -50,17 +51,20 @@ class UserManager(BaseUserManager):
         return self.create_user(email=email, password=password, **extra_fields)
 
 
-class UserType(models.IntegerChoices):
-    ADMIN = 0, "admin"
-    SUBJECT = 1, "subject"
-
-
 class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
+    class UserType(models.IntegerChoices):
+        ADMIN = 0, "admin"
+        SUBJECT = 1, "subject"
+
+    class SocialProviderType(models.TextChoices):
+        KAKAO = "kakao", "kakao"
+
     id = models.BigAutoField(primary_key=True)
     email = models.EmailField(max_length=64, unique=True, null=False)
     name = models.CharField(max_length=10, null=False)
-    role = models.PositiveSmallIntegerField(
-        null=False, default=UserType.ADMIN, choices=UserType.choices, editable=False
+    role = models.PositiveSmallIntegerField(null=False, choices=UserType.choices)
+    social_provider = models.CharField(
+        max_length=15, null=True, choices=SocialProviderType.choices
     )
 
     is_staff = models.BooleanField(
@@ -74,27 +78,7 @@ class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
 
     class Meta:
         db_table = "user"
-        unique_together = ["email"]
-
-    def __str__(self):
-        return f"[{self.id}] {self.email}"
-
-    def __repr__(self):
-        return f"User({self.id}, {self.email})"
-
-
-class AppUser(TimeStampMixin):
-    id = models.BigAutoField(primary_key=True)
-    email = models.EmailField(max_length=64, unique=True, null=False)
-    name = models.CharField(max_length=10, null=False)
-    role = models.PositiveSmallIntegerField(
-        null=False, default=UserType.SUBJECT, choices=UserType.choices, editable=False
-    )
-    social_provider = models.CharField(null=False, default="kakao", max_length=15)
-
-    class Meta:
-        db_table = "app_user"
-        unique_together = ["email"]
+        unique_together = ["email", "role"]
 
     def __str__(self):
         return f"[{self.id}] {self.email}"
