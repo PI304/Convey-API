@@ -14,7 +14,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
-from config import settings
+from config.settings import base as settings
 from config.exceptions import DuplicateInstance
 from config.renderer import CustomRenderer
 from .models import User
