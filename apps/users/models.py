@@ -41,6 +41,8 @@ class UserManager(BaseUserManager):
         """
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_deleted", False)
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("role", 0)
 
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
@@ -49,14 +51,18 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
+    class UserType(models.IntegerChoices):
+        ADMIN = 0, "admin"
+        SUBJECT = 1, "subject"
+
     id = models.BigAutoField(primary_key=True)
     email = models.EmailField(max_length=64, unique=True, null=False)
     name = models.CharField(max_length=10, null=False)
+    role = models.PositiveSmallIntegerField(null=False, choices=UserType.choices)
 
     is_staff = models.BooleanField(
         default=False,
     )
-
     objects = UserManager()
 
     EMAIL_FIELD = "email"

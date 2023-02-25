@@ -2,6 +2,8 @@ from rest_framework.renderers import JSONRenderer
 
 
 class CustomRenderer(JSONRenderer):
+    media_type = "application/json"
+
     def render(self, data, accepted_media_type=None, renderer_context=None):
         status_code = renderer_context["response"].status_code
         response = {}
