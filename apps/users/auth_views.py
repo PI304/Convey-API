@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.auth.models import update_last_login
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -5,6 +7,7 @@ from django.utils import timezone
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
+from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed, NotFound, ValidationError
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -66,11 +69,20 @@ class BasicSignUpView(APIView):
         if password != confirm_password:
             raise ValidationError("Passwords doesn't match")
 
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+        # check duplicate email
+        try:
+            existing_user = get_object_or_404(
+                User, email=request.data.get("email"), role=User.UserType.ADMIN
+            )
+            raise DuplicateInstance("user with the provided email already exists")
+        except Http404:
+            data = request.data
+            data["role"] = User.UserType.ADMIN.value
+            serializer = UserSerializer(data=data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class BasicSignInView(APIView):
@@ -79,8 +91,13 @@ class BasicSignInView(APIView):
     @swagger_auto_schema(
         operation_summary="Sign In",
         responses={
-            201: openapi.Response("user", UserSerializer),
-            401: "Incorrect password",
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "access_token": openapi.Schema(type=openapi.TYPE_STRING),
+                    "refresh_token": openapi.Schema(type=openapi.TYPE_STRING),
+                },
+            ),
         },
     )
     def post(self, request, *args, **kwargs):
@@ -373,3 +390,102 @@ class TokenRefreshView(APIView):
 
             except InvalidToken:
                 raise AuthenticationFailed("Both tokens are invalid. Login again.")
+
+
+class AppSignInView(APIView):
+    @swagger_auto_schema(
+        operation_summary="앱 사용자를 위한 로그인",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["name", "email", "social_provider"],
+            properties={
+                "name": openapi.Schema(type=openapi.TYPE_STRING),
+                "email": openapi.Schema(type=openapi.TYPE_STRING),
+                "social_provider": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="소셜 로그인 플랫폼 ex) kakao"
+                ),
+            },
+        ),
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "access_token": openapi.Schema(type=openapi.TYPE_STRING),
+                    "refresh_token": openapi.Schema(type=openapi.TYPE_STRING),
+                },
+            ),
+        },
+    )
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        if len(request.data) != 3:
+            raise ValidationError(
+                "body should include 'name', 'email' and 'socialProvider'"
+            )
+
+        try:
+            user = get_object_or_404(User, **request.data)
+        except Http404:
+            raise AuthenticationFailed("No user with the provided data")
+
+        update_last_login(None, user)
+        serializer = UserSerializer(user)
+        access_token, refresh_token = UserService.generate_tokens(user)
+
+        data = serializer.data
+        data["access_token"] = access_token
+        data["refresh_token"] = refresh_token
+
+        res = Response(
+            data,
+            status=status.HTTP_200_OK,
+        )
+
+        # TODO: secure, http-only
+        res.set_cookie(
+            settings.SIMPLE_JWT["AUTH_COOKIE"],
+            refresh_token,
+            max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
+            secure=True,
+        )  # 7 days
+        return res
+
+
+class AppSignUpView(APIView):
+    @swagger_auto_schema(
+        operation_summary="앱 사용자들을 위한 회원가입, 회원의 정보를 보냅니다",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["name", "email", "social_provider"],
+            properties={
+                "name": openapi.Schema(type=openapi.TYPE_STRING),
+                "email": openapi.Schema(type=openapi.TYPE_STRING),
+                "social_provider": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="소셜 로그인 플랫폼 ex) kakao"
+                ),
+            },
+        ),
+    )
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        if len(request.data) != 3:
+            raise ValidationError(
+                "body should include 'name', 'email' and 'socialProvider'"
+            )
+
+        # check duplicate email
+        try:
+            existing_user = get_object_or_404(
+                User, email=request.data.get("email"), role=User.UserType.SUBJECT
+            )
+            raise DuplicateInstance(
+                "app user with the provided email already exists, check other social provider?"
+            )
+        except Http404:
+            data = request.data
+            data["role"] = User.UserType.SUBJECT.value
+            data["password"] = "00000000"
+            print(data)
+            serializer = UserSerializer(data=data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
