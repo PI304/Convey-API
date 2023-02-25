@@ -1,2 +1,2 @@
-CREATE DATABASE IF NOT EXISTS pintalk;
-USE pintalk;
+CREATE DATABASE IF NOT EXISTS convey;
+USE convey;

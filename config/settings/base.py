@@ -126,8 +126,8 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_RENDERER_CLASSES": [
-        "config.renderer.CustomRenderer",
         "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
+        "config.renderer.CustomRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
     "DEFAULT_PARSER_CLASSES": [
