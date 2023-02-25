@@ -7,6 +7,8 @@ from rest_framework import generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.workspaces.serializers import WorkspaceSerializer
+
 
 @method_decorator(
     name="get",
@@ -15,6 +17,9 @@ from rest_framework.response import Response
     ),
 )
 class WorkspaceListView(generics.ListCreateAPIView):
+    pagination_class = None
+    serializer_class = WorkspaceSerializer
+
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         pass
 
