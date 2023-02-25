@@ -34,9 +34,9 @@ urlpatterns: List[URLResolver] = [
     path("", hello_world),
     path("auth/", include("apps.users.auth_urls")),
     # path("users/", include("apps.users.urls")),
-    # path("workspaces/", include("apps.workspaces.urls")),
-    # path("surveys/", include("apps.surveys.urls")),
-    # path("survey-packages/", include("apps.survey_packages.urls")),
+    path("workspaces/", include("apps.workspaces.urls")),
+    path("surveys/", include("apps.surveys.urls")),
+    path("survey-packages/", include("apps.survey_packages.urls")),
 ]
 
 urlpatterns += [
