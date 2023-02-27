@@ -1,49 +1,128 @@
-from typing import Any
+from typing import Any, List
 
-from django.shortcuts import render
+from django.db.models import QuerySet, Prefetch
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.surveys.models import SurveySector
+from apps.surveys.models import SurveySector, Survey
+from apps.surveys.serializers import (
+    SimpleSurveySerializer,
+    SurveySerializer,
+    SectorChoiceSerializer,
+)
+from apps.surveys.services import SurveyService
+from config.permissions import AdminOnly, IsAdminOrReadOnly, IsAuthorOrReadOnly
 
 
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
         operation_summary="요청을 보내는 유저가 만든 모든 survey 를 가져옵니다",
+        responses={200: SimpleSurveySerializer(many=True)},
     ),
 )
 class SurveyListView(generics.ListCreateAPIView):
-    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        queryset = self.filter_queryset(self.get_queryset())
+    permission_classes = [permissions.IsAuthenticated, AdminOnly]
+    queryset = Survey.objects.all()
+    serializer_class = SimpleSurveySerializer
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    def get_queryset(self) -> QuerySet:
+        return self.queryset.filter(author_id=self.request.user.id).all()
 
     @swagger_auto_schema(
-        operation_summary="다수의 sector 로 구성된 small survey 를 만듭니다",
+        operation_summary="기본 정보를 입력 받아 빈 survey 를 만듭니다",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "title": openapi.Schema(type=openapi.TYPE_STRING, description="설문 제목"),
+                "description": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="설문 설명"
+                ),
+                "abbr": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="abbreviation"
+                ),
+            },
+        ),
+        responses={201: openapi.Response("created", SimpleSurveySerializer)},
+    )
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid(raise_exceptions=True):
+            serializer.save(author_id=request.user.id)
+
+        return Response(serializer.data)
+
+
+@method_decorator(
+    name="get",
+    decorator=swagger_auto_schema(
+        operation_summary="survey의 기본 정보와 하위 sector 들을 모두 가져옵니다",
+        responses={200: openapi.Response("ok", SurveySerializer)},
+    ),
+)
+@method_decorator(
+    name="patch",
+    decorator=swagger_auto_schema(
+        operation_summary="설문의 기본 정보를 수정합니다",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "title": openapi.Schema(type=openapi.TYPE_STRING, description="설문 제목"),
+                "description": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="설문 설명"
+                ),
+                "abbr": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="abbreviation"
+                ),
+            },
+        ),
+        responses={200: openapi.Response("updated", SimpleSurveySerializer)},
+    ),
+)
+@method_decorator(
+    name="delete",
+    decorator=swagger_auto_schema(
+        operation_summary="설문을 완전히 삭제합니다. 관련된 모든 데이터들이 삭제됩니다",
+        responses={204: "no content"},
+    ),
+)
+class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
+    allowed_methods = ["PUT", "GET", "DELETE", "PATCH"]
+    queryset = Survey.objects.all()
+    serializer_class = SurveySerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsAdminOrReadOnly,
+        IsAuthorOrReadOnly,
+    ]
+
+    def get_queryset(self) -> QuerySet:
+        return self.queryset.prefetch_related(
+            Prefetch(
+                "sectors",
+                queryset=SurveySector.objects.prefetch_related("choices", "questions"),
+            )
+        )
+
+    @swagger_auto_schema(
+        operation_summary="설문의 내용을 구성합니다. 기본 정보를 제외한 기존의 설문 내용은 삭제되고 새로 생성됩니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_ARRAY,
             description="sector 로 구성된 list",
             items=openapi.Schema(
                 type=openapi.TYPE_OBJECT,
-                description="하나의 sector, 문제 유형에 따라 구분됩니다",
                 properties={
                     "description": openapi.Schema(
                         type=openapi.TYPE_STRING, description="sector 에 더해질 설명"
                     ),
                     "question_type": openapi.Schema(
                         type=openapi.TYPE_STRING,
-                        description=f"가능한 타입은 {str(SurveySector.QuestionType.choices)}",
+                        description=f"가능한 타입은 {str(SurveySector.QuestionType.values)}",
                     ),
                     "choices": openapi.Schema(
                         type=openapi.TYPE_ARRAY,
@@ -66,45 +145,38 @@ class SurveyListView(generics.ListCreateAPIView):
                         type=openapi.TYPE_ARRAY,
                         description="실제 문항 list",
                         items=openapi.Schema(
-                            type=openapi.TYPE_STRING, description="실제 문항 내용"
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                "content": openapi.Schema(
+                                    type=openapi.TYPE_STRING, description="실제 문항 내용"
+                                ),
+                                "is_required": openapi.Schema(
+                                    type=openapi.TYPE_BOOLEAN,
+                                    default=True,
+                                    description="필수 문항 여부",
+                                ),
+                            },
                         ),
                     ),
                 },
             ),
         ),
-    )
-    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        pass
-
-
-class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
-    allowed_methods = ["PUT", "GET", "DELETE"]
-
-    @swagger_auto_schema(
-        operation_summary="survey의 하위 sector 들을 모두 가져옵니다",
-    )
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        pass
-
-    @swagger_auto_schema(
-        operation_summary="설문을 수정합니다. 기존의 설문은 삭제되고 새롭게 생성됩니다",
-        request_body=openapi.Schema(type=openapi.TYPE_OBJECT, description="POST 와 동일"),
-        responses={
-            400: "No cookies attached",
-            409: "Verification code does not match",
-        },
+        responses={200: openapi.Response("ok", SurveySerializer)},
     )
     def put(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        # TODO: 관련된 sector 다 지우고 새로 생성
-        # return HttpResponseRedirect()
-        pass
+        survey = self.get_object()
 
-    @swagger_auto_schema(
-        operation_summary="설문 패키지를 완전히 삭제합니다. 관련된 모든 데이터들이 삭제됩니다",
-        responses={
-            400: "No cookies attached",
-            409: "Verification code does not match",
-        },
-    )
-    def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        pass
+        service = SurveyService(survey)
+        service.delete_related_sectors()
+
+        sectors = service.create_sectors(request.data)
+
+        return Response(
+            self.get_serializer(self.get_queryset().filter(id=survey.id), many=True)
+        )
+
+    def perform_update(self, serializer):
+        serializer.save(updated_at=timezone.now())
+
+
+# TODO: 연결 문항 따로 관리
