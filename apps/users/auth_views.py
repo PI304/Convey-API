@@ -36,7 +36,7 @@ class BasicSignUpView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="Sign up",
+        operation_summary="어드민 유저 웹사이트 회원가입",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             required=[
@@ -91,7 +91,7 @@ class BasicSignInView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="Sign In",
+        operation_summary="어드민 유저 웹사이트 로그인",
         responses={
             200: openapi.Schema(
                 type=openapi.TYPE_OBJECT,
@@ -142,7 +142,7 @@ class SecessionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_summary="Leave",
+        operation_summary="계정 탈퇴",
         responses={200: openapi.Response("user", UserSerializer)},
     )
     def post(self, request, *args, **kwargs):
@@ -157,14 +157,14 @@ class CheckDuplicateUsernameView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="Check if there's duplicate email (username)",
+        operation_summary="중복 이메일이 존재하는지 확인합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={"email": openapi.Schema(type=openapi.FORMAT_EMAIL)},
         ),
         responses={
             200: openapi.Response(
-                description="No duplicates",
+                "ok",
                 schema=openapi.Schema(
                     type=openapi.TYPE_OBJECT,
                     properties={
@@ -192,12 +192,12 @@ class PasswordChangeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_summary="Change user password",
+        operation_summary="어드민 유저 웹사이트 비밀번호 변경",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "currentPassword": openapi.Schema(type=openapi.FORMAT_PASSWORD),
-                "newPassword": openapi.Schema(type=openapi.FORMAT_PASSWORD),
+                "current_password": openapi.Schema(type=openapi.FORMAT_PASSWORD),
+                "new_password": openapi.Schema(type=openapi.FORMAT_PASSWORD),
             },
         ),
         responses={
@@ -225,7 +225,7 @@ class PasswordResetView(APIView):
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="Reset password to random string sent to user email",
+        operation_summary="비밀번호를 초기화합니다. 랜덤한 문자열이 임시 비밀번호로 설정되며 이메일로 전송됩니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={"email": openapi.Schema(type=openapi.FORMAT_EMAIL)},
@@ -248,7 +248,7 @@ class PasswordResetView(APIView):
         user.save(update_fields=["password"])
 
         email = EmailMessage(
-            "[PinTalk] 비밀번호가 초기화 되었습니다.",
+            "[Convey] 비밀번호가 초기화 되었습니다.",
             f"비밀번호가 아래의 임시 비밀번호로 변경되었습니다. 아래 비밀번호로 다시 로그인하신 뒤 꼭 비밀번호를 변경해주세요.\n임시 비밀번호: {new_password}",
             to=[email],  # 받는 이메일
         )
@@ -267,7 +267,7 @@ class EmailVerification(APIView):
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="Send verification code to user email when signing up",
+        operation_summary="회원가입 과정에서의 이메일 검증을 위해 인증 코드를 이메일로 전송합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={"email": openapi.Schema(type=openapi.FORMAT_EMAIL)},
@@ -308,7 +308,7 @@ class EmailConfirmation(APIView):
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="Confirm code sent to email for signing up",
+        operation_summary="입력한 이메일 인증코드가 정확한지 확인합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={"verification_code": openapi.Schema(type=openapi.TYPE_STRING)},
