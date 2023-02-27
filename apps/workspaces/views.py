@@ -11,7 +11,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.survey_packages.models import SurveyPackage
-from apps.users.services import UserService
 from apps.workspaces.models import Workspace, Routine, RoutineDetail
 from apps.workspaces.serializers import (
     WorkspaceSerializer,
@@ -19,7 +18,7 @@ from apps.workspaces.serializers import (
     RoutineDetailSerializer,
 )
 from apps.workspaces.services import RoutineService
-from config.exceptions import InstanceNotFound, UnprocessableException
+from config.exceptions import InstanceNotFound
 
 
 @method_decorator(
@@ -34,8 +33,7 @@ class WorkspaceListView(generics.ListCreateAPIView):
     queryset = Workspace.objects.all()
 
     def get_queryset(self) -> QuerySet:
-        user = UserService.authenticate_by_token(self.request)
-        return self.queryset.filter(owner_id=user.id)
+        return self.queryset.filter(owner_id=self.request.user.id)
 
     @swagger_auto_schema(
         operation_summary="빈 workspace 를 생성합니다",
@@ -55,10 +53,9 @@ class WorkspaceListView(generics.ListCreateAPIView):
         responses={200: openapi.Response("created", WorkspaceSerializer)},
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        owner = UserService.authenticate_by_token(request)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exceptions=True):
-            serializer.save(owner_id=owner.id)
+            serializer.save(owner_id=request.user.id)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -157,7 +154,9 @@ class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
         routine_details = request.data.get("routines", None)
         if routine_details:
             routine = routine_service.add_routine_details(routine_details)
-            return Response(routine, status=status.HTTP_201_CREATED)
+            return Response(
+                self.get_serializer(routine).data, status=status.HTTP_201_CREATED
+            )
         else:
             return Response(routine_serializer.data, status=status.HTTP_201_CREATED)
 
