@@ -9,9 +9,11 @@ from config.mixins import TimeStampMixin
 class SurveyPackage(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    workspace = models.ManyToManyField("workspaces.Workspace", null=True)
+    workspace = models.ForeignKey(
+        "workspaces.Workspace", on_delete=models.SET_NULL, null=True
+    )
     title = models.CharField(max_length=100, null=False)
-    logo = models.ImageField(blank=False, null=True, upload_to="package_logo/")
+    logo = models.ImageField(blank=False, null=True, upload_to="user_profiles/")
     access_code = models.CharField(max_length=10, null=False)
     uuid = ShortUUIDField()
     is_closed = models.BooleanField(default=False)
