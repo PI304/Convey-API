@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.urls import path, re_path, include
 from rest_framework.request import Request
-from rest_framework.response import Response
+from django.conf import settings
 
 
 def health_check_view(request: Request) -> HttpResponse:
@@ -32,3 +32,6 @@ urlpatterns = [
     ),
     re_path(r"^api/", include("config.urls_v1")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
