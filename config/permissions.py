@@ -13,3 +13,12 @@ class IsAdminOrReadOnly(BasePermission):
                 return True
             else:
                 return False
+
+
+class AdminOnly(BasePermission):
+    message = "Permission denied"
+
+    def has_permission(self, request, view) -> bool:
+        if request.user and request.user.role == 1:
+            return True
+        return False
