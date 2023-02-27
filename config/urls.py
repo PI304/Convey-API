@@ -14,21 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.http import HttpResponse
-from django.urls import path, re_path, include
-from rest_framework.request import Request
-from rest_framework.response import Response
-
-
-def health_check_view(request: Request) -> HttpResponse:
-    return HttpResponse(status=200)
-
+from django.urls import path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path(
-        "health-check/",
-        health_check_view,
-    ),
-    re_path(r"^api/", include("config.urls_v1")),
 ]

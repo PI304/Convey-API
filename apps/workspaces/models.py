@@ -1,4 +1,3 @@
-import shortuuid
 from django.db import models
 
 from apps.users.models import User
@@ -10,8 +9,6 @@ class Workspace(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
     owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=30)
-    uuid = shortuuid.ShortUUID()
-    access_code = models.CharField(max_length=128, null=False)
 
     class Meta:
         db_table = "workspace"
@@ -42,13 +39,8 @@ class WorkspaceComposition(TimeStampMixin):
 
 class Routine(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
-    workspace = models.ForeignKey(
-        Workspace, on_delete=models.CASCADE, related_name="routine"
-    )
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
     duration = models.IntegerField(null=False)
-    kick_off = models.ForeignKey(
-        SurveyPackage, on_delete=models.SET_NULL, null=True, related_name="kick_off_for"
-    )
 
     class Meta:
         db_table = "routine"
@@ -62,9 +54,7 @@ class Routine(TimeStampMixin):
 
 class RoutineDetail(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
-    routine = models.ForeignKey(
-        Routine, on_delete=models.CASCADE, related_name="routine_details"
-    )
+    routine = models.ForeignKey(Routine, on_delete=models.CASCADE)
     nth_day = models.PositiveSmallIntegerField(null=False)
     time = models.CharField(max_length=5, null=False)
     survey_package = models.ForeignKey(SurveyPackage, on_delete=models.CASCADE)

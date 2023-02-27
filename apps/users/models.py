@@ -1,5 +1,4 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.db import models
 import logging
@@ -42,8 +41,6 @@ class UserManager(BaseUserManager):
         """
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_deleted", False)
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("role", 0)
 
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
@@ -52,24 +49,14 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
-    class UserType(models.IntegerChoices):
-        ADMIN = 0, "admin"
-        SUBJECT = 1, "subject"
-
-    class SocialProviderType(models.TextChoices):
-        KAKAO = "kakao", "kakao"
-
     id = models.BigAutoField(primary_key=True)
     email = models.EmailField(max_length=64, unique=True, null=False)
     name = models.CharField(max_length=10, null=False)
-    role = models.PositiveSmallIntegerField(null=False, choices=UserType.choices)
-    social_provider = models.CharField(
-        max_length=15, null=True, choices=SocialProviderType.choices
-    )
 
     is_staff = models.BooleanField(
         default=False,
     )
+
     objects = UserManager()
 
     EMAIL_FIELD = "email"
@@ -78,10 +65,10 @@ class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
 
     class Meta:
         db_table = "user"
-        unique_together = ["email", "role"]
+        unique_together = ["email"]
 
     def __str__(self):
-        return f"[{self.id}] {self.email}"
+        return f"[{self.id}] {self.get_username()}"
 
     def __repr__(self):
-        return f"User({self.id}, {self.email})"
+        return f"User({self.id}, {self.get_username()})"
