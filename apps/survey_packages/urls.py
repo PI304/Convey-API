@@ -3,6 +3,7 @@ from django.urls import path, URLPattern
 from apps.survey_packages.views.base_views import (
     SurveyPackageListView,
     SurveyPackageDetailView,
+    KickOffSurveyView,
 )
 
 from apps.survey_packages.views.answers_views import (
@@ -22,4 +23,5 @@ urlpatterns: list[URLPattern] = [
         SurveyPackageAnswerListView.as_view(),
         name="survey_package_answers_list",
     ),
+    path("kick-off/", KickOffSurveyView.as_view(), name="kickoff_survey"),
 ]
