@@ -155,7 +155,7 @@ class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
         if routine_details:
             routine = routine_service.add_routine_details(routine_details)
             return Response(
-                self.get_serializer(routine), status=status.HTTP_201_CREATED
+                self.get_serializer(routine).data, status=status.HTTP_201_CREATED
             )
         else:
             return Response(routine_serializer.data, status=status.HTTP_201_CREATED)
