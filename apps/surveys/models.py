@@ -31,7 +31,7 @@ class SurveySector(TimeStampMixin):
         LONG_ANSWER = 5, "서술형"
 
     id = models.BigAutoField(primary_key=True)
-    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="sectors")
     title = models.CharField(max_length=50, null=False)
     description = models.CharField(max_length=200, null=False)
     question_type = models.SmallIntegerField(
@@ -51,7 +51,9 @@ class SurveySector(TimeStampMixin):
 
 class SectorChoice(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
-    sector = models.ForeignKey(SurveySector, on_delete=models.CASCADE)
+    sector = models.ForeignKey(
+        SurveySector, on_delete=models.CASCADE, related_name="choices"
+    )
     key = models.CharField(max_length=50, null=False)
     value = models.CharField(max_length=200, null=False)
 
@@ -62,12 +64,14 @@ class SectorChoice(TimeStampMixin):
         return f"[{self.id}] key: {self.key}/value: {self.value}"
 
     def __repr__(self):
-        return f"SurveySector({self.id}, {self.key}, {self.value})"
+        return f"SurveyChoice({self.id}, {self.key}, {self.value})"
 
 
 class SectorQuestion(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
-    sector = models.ForeignKey(SurveySector, on_delete=models.CASCADE)
+    sector = models.ForeignKey(
+        SurveySector, on_delete=models.CASCADE, related_name="questions"
+    )
     content = models.CharField(max_length=200, null=False)
     is_required = models.BooleanField(default=True)
     linked_sector = models.ForeignKey(

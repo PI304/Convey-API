@@ -8,7 +8,7 @@ from apps.survey_packages.models import (
     PackageSubject,
     PackageSubjectSurvey,
 )
-from apps.surveys.serializers import SurveySerialzer
+from apps.surveys.serializers import SurveySerializer
 from apps.users.serializers import UserSerializer
 from apps.workspaces.serializers import WorkspaceSerializer
 
@@ -43,7 +43,7 @@ class SimpleSurveyPackageSerializer(serializers.ModelSerializer):
 
 
 class PackageSubjectSurveySerializer(serializers.ModelSerializer):
-    survey = SurveySerialzer(read_only=True)
+    survey = SurveySerializer(read_only=True)
 
     class Meta:
         model = PackageSubjectSurvey

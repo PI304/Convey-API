@@ -103,7 +103,7 @@ class SurveyPackageListView(generics.ListCreateAPIView):
 
 
 @method_decorator(
-    name="destroy",
+    name="delete",
     decorator=swagger_auto_schema(
         operation_summary="설문 패키지를 완전히 삭제합니다. 관련된 모든 데이터들이 삭제됩니다",
         responses={
@@ -111,20 +111,20 @@ class SurveyPackageListView(generics.ListCreateAPIView):
         },
     ),
 )
+@method_decorator(
+    name="get",
+    decorator=swagger_auto_schema(
+        operation_summary="하나의 패키지 안에 있는 모든 Parts 를 가져옵니다",
+        responses={200: openapi.Response("ok", PackagePartSerializer(many=True))},
+    ),
+)
 class SurveyPackageDetailView(
-    generics.UpdateAPIView, mixins.DestroyModelMixin, generics.ListAPIView
+    generics.UpdateAPIView, generics.DestroyAPIView, generics.ListAPIView
 ):
     allowed_methods = ["PUT", "DELETE", "GET", "PATCH"]
     queryset = SurveyPackage.objects.all()
     serializer_class = SurveyPackageSerializer
 
-    @swagger_auto_schema(
-        operation_summary="하나의 패키지 안에 있는 모든 Parts 를 가져옵니다",
-        responses={
-            400: "No cookies attached",
-            409: "Verification code does not match",
-        },
-    )
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = PackagePart.objects.filter(
             survey_package_id=kwargs.get("pk")
