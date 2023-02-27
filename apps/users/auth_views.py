@@ -33,6 +33,7 @@ from .services import UserService
 
 class BasicSignUpView(APIView):
     serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
         operation_summary="Sign up",
@@ -87,6 +88,7 @@ class BasicSignUpView(APIView):
 
 class BasicSignInView(APIView):
     serializer = UserSerializer
+    permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
         operation_summary="Sign In",
@@ -152,6 +154,8 @@ class SecessionView(APIView):
 
 
 class CheckDuplicateUsernameView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     @swagger_auto_schema(
         operation_summary="Check if there's duplicate email (username)",
         request_body=openapi.Schema(
@@ -260,6 +264,8 @@ class PasswordResetView(APIView):
 
 
 class EmailVerification(APIView):
+    permission_classes = [permissions.AllowAny]
+
     @swagger_auto_schema(
         operation_summary="Send verification code to user email when signing up",
         request_body=openapi.Schema(
@@ -299,6 +305,8 @@ class EmailVerification(APIView):
 
 
 class EmailConfirmation(APIView):
+    permission_classes = [permissions.AllowAny]
+
     @swagger_auto_schema(
         operation_summary="Confirm code sent to email for signing up",
         request_body=openapi.Schema(
@@ -393,6 +401,8 @@ class TokenRefreshView(APIView):
 
 
 class AppSignInView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     @swagger_auto_schema(
         operation_summary="앱 사용자를 위한 로그인",
         request_body=openapi.Schema(
@@ -451,6 +461,8 @@ class AppSignInView(APIView):
 
 
 class AppSignUpView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     @swagger_auto_schema(
         operation_summary="앱 사용자들을 위한 회원가입, 회원의 정보를 보냅니다",
         request_body=openapi.Schema(
