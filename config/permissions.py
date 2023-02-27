@@ -1,27 +1,19 @@
-from rest_framework import permissions
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from apps.users.services import UserService
 
 
-class AdminPermission(permissions.BasePermission):
+class IsAdminOrReadOnly(BasePermission):
     message = "Permission denied"
 
     def has_permission(self, request: Request, view: APIView) -> bool:
         user = UserService.authenticate_by_token(request)
-        if user.role == 0:
+        if (
+            request.method in SAFE_METHODS
+            or request.user
+            and request.user.is_authenticated
+        ):
             return True
-        else:
-            return False
-
-
-class AppUserPermission(permissions.BasePermission):
-    message = "Permission denied"
-
-    def has_permission(self, request: Request, view: APIView) -> bool:
-        user = UserService.authenticate_by_token(request)
-        if user.role == 1:
-            return True
-        else:
-            return False
+        return False
