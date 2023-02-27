@@ -53,6 +53,18 @@ class InternalServerError(APIException):
             self.detail = detail
 
 
+class UnprocessableException(APIException):
+    status_code = 422
+    default_detail = "unprocessable"
+    default_code = "unprocessable_entity"
+
+    def __init__(self, detail=None):
+        if detail is None:
+            self.detail = self.default_detail
+        else:
+            self.detail = detail
+
+
 def custom_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
