@@ -30,6 +30,7 @@ class SurveyService(object):
     def _create_sector(self, data: dict) -> SurveySector:
         # Create base SurveySector
         sector_data = dict(
+            title=data.get("title", None),
             description=data.get("description", None),
             question_type=data.get("question_type", None),
         )
@@ -44,8 +45,8 @@ class SurveyService(object):
             raise ValidationError("'choices' field is required")
 
         for c in choices_list_data:
-            data = dict(key=c.get("key", None), value=c.get("value", None))
-            serializer = SectorChoiceSerializer(data=data)
+            choice_data = dict(key=c.get("key", None), value=c.get("value", None))
+            serializer = SectorChoiceSerializer(data=choice_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(sector_id=sector.id)
 

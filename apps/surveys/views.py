@@ -1,11 +1,11 @@
 from typing import Any, List
 
 from django.db.models import QuerySet, Prefetch
-from django.utils import timezone
+from datetime import datetime
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -14,6 +14,7 @@ from apps.surveys.serializers import (
     SimpleSurveySerializer,
     SurveySerializer,
     SectorChoiceSerializer,
+    SurveySectorSerializer,
 )
 from apps.surveys.services import SurveyService
 from config.permissions import AdminOnly, IsAdminOrReadOnly, IsAuthorOrReadOnly
@@ -52,10 +53,10 @@ class SurveyListView(generics.ListCreateAPIView):
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exceptions=True):
+        if serializer.is_valid(raise_exception=True):
             serializer.save(author_id=request.user.id)
 
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @method_decorator(
@@ -117,6 +118,9 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
             items=openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
+                    "title": openapi.Schema(
+                        type=openapi.TYPE_STRING, description="sector 제목"
+                    ),
                     "description": openapi.Schema(
                         type=openapi.TYPE_STRING, description="sector 에 더해질 설명"
                     ),
@@ -171,12 +175,16 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         sectors = service.create_sectors(request.data)
 
-        return Response(
-            self.get_serializer(self.get_queryset().filter(id=survey.id), many=True)
-        )
+        serializer = SurveySectorSerializer(sectors, many=True)
 
-    def perform_update(self, serializer):
-        serializer.save(updated_at=timezone.now())
+        return Response(serializer.data)
+
+    def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        instance = self.get_object()
+        serializer = SimpleSurveySerializer(instance, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(updated_at=datetime.now())
+        return Response(serializer.data)
 
 
 # TODO: 연결 문항 따로 관리

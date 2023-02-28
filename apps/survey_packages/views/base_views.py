@@ -2,8 +2,7 @@ from typing import Any
 
 from django.db.models import QuerySet, Prefetch
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from datetime import datetime
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -88,7 +87,7 @@ class SurveyPackageListView(generics.ListCreateAPIView):
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exceptions=True):
+        if serializer.is_valid(raise_exception=True):
             serializer.save(author_id=request.user.id)
 
         service = SurveyPackageService(serializer.data.get("id"))
@@ -237,7 +236,7 @@ class SurveyPackageDetailView(
             instance, data=request.data, partial=True
         )
         if serializer.is_valid(raise_exception=True):
-            serializer.save(updated_at=timezone.now())
+            serializer.save(updated_at=datetime.now())
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 

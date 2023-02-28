@@ -3,7 +3,7 @@ from typing import Any
 from django.contrib.auth.models import update_last_login
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from datetime import datetime
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
@@ -214,7 +214,7 @@ class PasswordChangeView(APIView):
             raise AuthenticationFailed("Password do not match")
 
         user.set_password(new_password)
-        user.updated_at = timezone.now()
+        user.updated_at = datetime.now()
         user.save(update_fields=["password", "updated_at"])
 
         serializer = UserSerializer(user)

@@ -1,7 +1,7 @@
 import string
 import random
 
-from django.utils import timezone
+from datetime import datetime
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -17,7 +17,7 @@ class UserService(object):
 
     def deactivate_user(self):
         self.user.is_deleted = True
-        self.user.deleted_at = timezone.now()
+        self.user.deleted_at = datetime.now()
         self.user.save(update_fields=["is_deleted", "deleted_at"])
         return self.user
 
