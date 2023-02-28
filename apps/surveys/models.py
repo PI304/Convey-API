@@ -22,21 +22,20 @@ class Survey(TimeStampMixin):
 
 
 class SurveySector(TimeStampMixin):
-    class QuestionType(models.IntegerChoices):
-        LIKERT = 0, "리커트"
-        SHORT_ANSWER = 1, "단답형"
-        SINGLE_SELECT = 2, "단일 선택"
-        MULTI_SELECT = 3, "다중 선택"
-        EXTENT = 4, "정도"
-        LONG_ANSWER = 5, "서술형"
+    class QuestionType(models.TextChoices):
+        LIKERT = "likert", "리커트"
+        SHORT_ANSWER = "short_answer", "단답형"
+        SINGLE_SELECT = "single_select", "단일 선택"
+        MULTI_SELECT = "multi_select", "다중 선택"
+        EXTENT = "extent", "정도"
+        LONG_ANSWER = "long_answer", "서술형"
 
     id = models.BigAutoField(primary_key=True)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="sectors")
     title = models.CharField(max_length=50, null=False)
     description = models.CharField(max_length=200, null=False)
-    question_type = models.SmallIntegerField(
-        null=False,
-        choices=QuestionType.choices,
+    question_type = models.CharField(
+        null=False, choices=QuestionType.choices, max_length=15
     )
 
     class Meta:
@@ -59,6 +58,7 @@ class SectorChoice(TimeStampMixin):
 
     class Meta:
         db_table = "sector_choice"
+        unique_together = ["sector", "key", "value"]
 
     def __str__(self):
         return f"[{self.id}] key: {self.key}/value: {self.value}"
