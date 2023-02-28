@@ -1,0 +1,63 @@
+[
+  {
+    "title": "sector 1 title",
+    "description": "sector 1",
+    "question_type": "likert",
+    "choices": [
+      {
+        "key": "1",
+        "value": "매우 그렇다"
+      },
+      {
+        "key": "2",
+        "value": "그렇다"
+      },
+      {
+        "key": "3",
+        "value": "보통이다"
+      },
+      {
+        "key": "4",
+        "value": "그렇지 않다"
+      },
+      {
+        "key": "5",
+        "value": "매우 그렇지 않다"
+      }
+    ],
+    "questions": [
+      {
+        "content": "질문1"
+      },
+      {
+        "content": "질문2"
+      },
+      {
+        "content": "질문3"
+      }
+    ]
+  },
+  {
+    "title": "sector 2 title",
+    "description": "sector 2",
+    "question_type": "short_answer",
+    "choices": [
+      {
+        "key": "일주일에",
+        "value": "%d일"
+      },
+      {
+        "key": "하루에",
+        "value": "%d시간%d분"
+      }
+    ],
+    "questions": [
+      {
+        "content": "한번에 적어도 10분 이상 걸은 날은 며칠?"
+      },
+      {
+        "content": "그런 날 중 하루에 걸으면서 보낸 시간?"
+      }
+    ]
+  }
+]

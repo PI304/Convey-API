@@ -54,7 +54,7 @@ class WorkspaceListView(generics.ListCreateAPIView):
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exceptions=True):
+        if serializer.is_valid(raise_exception=True):
             serializer.save(owner_id=request.user.id)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -145,7 +145,7 @@ class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
         # Create Routine
         routine_serializer = self.get_serializer(data=data)
 
-        if routine_serializer.is_valid(raise_exceptions=True):
+        if routine_serializer.is_valid(raise_exception=True):
             routine_serializer.save(workspace_id=kwargs.get("pk"))
 
         routine_service = RoutineService(routine_serializer.data.get("id"))

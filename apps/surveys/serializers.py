@@ -9,7 +9,15 @@ class SimpleSurveySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Survey
-        fields = "__all__"
+        fields = [
+            "id",
+            "author",
+            "title",
+            "description",
+            "abbr",
+            "created_at",
+            "updated_at",
+        ]
         read_only_fields = ["id", "author", "created_at", "updated_at"]
 
 
@@ -20,15 +28,6 @@ class SectorChoiceSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "sector", "created_at", "updated_at"]
 
 
-class SurveySectorSerializer(serializers.ModelSerializer):
-    choices = SectorChoiceSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = SurveySector
-        fields = "__all__"
-        read_only_fields = ["id", "survey", "created_at", "updated_at"]
-
-
 class SectorQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectorQuestion
@@ -36,9 +35,35 @@ class SectorQuestionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "sector", "linked_sector", "created_at", "updated_at"]
 
 
+class SurveySectorSerializer(serializers.ModelSerializer):
+    choices = SectorChoiceSerializer(read_only=True, many=True)
+    questions = SectorQuestionSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = SurveySector
+        fields = [
+            "id",
+            "survey",
+            "title",
+            "description",
+            "question_type",
+            "choices",
+            "questions",
+        ]
+        read_only_fields = [
+            "id",
+            "survey",
+            "created_at",
+            "updated_at",
+            "choices",
+            "questions",
+        ]
+
+
 class SurveySerializer(serializers.ModelSerializer):
-    sectors = SurveySectorSerializer(many=True)
+    sectors = SurveySectorSerializer(many=True, read_only=True)
 
     class Meta:
         model = Survey
-        fields = "__all__"
+        fields = ["id", "title", "description", "abbr", "author", "sectors"]
+        read_only_fields = ["id", "author", "sectors", "created_at", "updated_at"]
