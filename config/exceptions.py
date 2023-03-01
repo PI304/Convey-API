@@ -65,6 +65,18 @@ class UnprocessableException(APIException):
             self.detail = detail
 
 
+class ConflictException(APIException):
+    status_code = 409
+    default_detail = "conflict"
+    default_code = "conflict"
+
+    def __init__(self, detail=None):
+        if detail is None:
+            self.detail = self.default_detail
+        else:
+            self.detail = detail
+
+
 def custom_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
