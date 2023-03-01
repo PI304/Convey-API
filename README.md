@@ -2,7 +2,7 @@
 
 ## 1. Test Server
 
-[테스트 서버 API Doc 보기](http://13.125.243.32/api/swagger/)
+[테스트 서버 API Doc 보기](http://3.34.67.68/api/swagger/)
 
 
 ## 2. Schemas
@@ -14,6 +14,29 @@ body 에 들어갈 data 의 스키마는 API Document 에 정의되어 있습니
 헤더의 Authorization 를 이용하여 앱 이용자임을 식별합니다. 앱 이용자가 아니라면 요청을 거절됩니다.
 피험자 id 는 request body 에 명시합니다. 피험자 응답은 Part 단위로 전송하며 sector 에 대한 응답들로 리스트가 구성됩니다.
 자세한 스키마는 API Document 를 참고해주세요.
+
+#### 2) sector 생성 시 question type 별 선지 구성 방법
+sector 생성 시 선택할 수 있는 문제 유형은 아래와 같습니다. 아래 code 의 string 값을 question_type 으로 지정해주시면 됩니다.
+```python
+LIKERT = "likert", "리커트"
+SHORT_ANSWER = "short_answer", "단답형"
+SINGLE_SELECT = "single_select", "단일 선택"
+MULTI_SELECT = "multi_select", "다중 선택"
+EXTENT = "extent", "정도"
+LONG_ANSWER = "long_answer", "서술형"
+```
+
+각 sector 는 하나의 문제 유형만으로 구성되며 하나의 sector 내에서는 선지 구성 역시 동일합니다.
+
+(ex: 리커트 척도를 문제유형으로 가지는 sector 의 경우, 
+1번부터 5번으로 구성된 같은 선지가 전체 sector 에 걸쳐 적용되며
+문제 내용만 달라집니다. 아래 사진 참고)
+
+
+<img width="472" alt="스크린샷 2023-03-01 오후 7 38 40" src="https://user-images.githubusercontent.com/89679621/222115745-b51edcb8-d752-4d53-a051-6b3ee7a6e1b2.png">
+
+각기 다른 문제 유형의 sector 들도 구성된 survey 의 샘플 데이터는
+[sampe-survey-data.json](sample-survey-data.json) 을 참고해주세요.
 
 
 ### 2. 시나리오별 Response Schemas
@@ -55,11 +78,3 @@ kick-off 서베이 응답 후에는 해당 workspace 의 정보가 반환됩니�
    ]
 }
 ```
-
-#### 2) survey package - 설문의 문항 정보 받기
-업데이트 예정입니다.
-
-
-
-## 3.Sector 와 문제 유형
-업데이트 예정입니다.

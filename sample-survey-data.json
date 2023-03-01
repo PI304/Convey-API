@@ -1,0 +1,142 @@
+{
+  "id": 1,
+  "title": "survey title",
+  "description": "survey description",
+  "abbr": "a",
+  "author": 1,
+  "sectors": [
+    {
+      "title": "sector 1 title",
+      "description": "sector 1",
+      "question_type": "likert",
+      "choices": [
+        {
+          "key": "1",
+          "value": "매우 그렇다"
+        },
+        {
+          "key": "2",
+          "value": "그렇다"
+        },
+        {
+          "key": "3",
+          "value": "보통이다"
+        },
+        {
+          "key": "4",
+          "value": "그렇지 않다"
+        },
+        {
+          "key": "5",
+          "value": "매우 그렇지 않다"
+        }
+      ],
+      "questions": [
+        {
+          "content": "질문1"
+        },
+        {
+          "content": "질문2"
+        },
+        {
+          "content": "질문3"
+        }
+      ]
+    },
+    {
+      "title": "sector 2 title",
+      "description": "sector 2",
+      "question_type": "short_answer",
+      "choices": [
+        {
+          "key": "일주일에",
+          "value": "%d일"
+        },
+        {
+          "key": "하루에",
+          "value": "%d시간%d분"
+        }
+      ],
+      "questions": [
+        {
+          "content": "한번에 적어도 10분 이상 걸은 날은 며칠?"
+        },
+        {
+          "content": "그런 날 중 하루에 걸으면서 보낸 시간?"
+        }
+      ]
+    },
+    {
+      "title": "sector 3 title",
+      "description": "sector 3",
+      "question_type": "single_select",
+      "choices": [
+        {
+          "key": "1",
+          "value": "일주일에 4회 이상"
+        },
+        {
+          "key": "2",
+          "value": "일주일에 3회"
+        },
+        {
+          "key": "3",
+          "value": "일주일에 2회"
+        },
+        {
+          "key": "4",
+          "value": "일주일에 1회"
+        }
+      ],
+      "questions": [
+        {
+          "content": "얼마나 자주 운동하나요"
+        },
+        {
+          "content": "늦잠은 얼마나 자주 주무시나요"
+        }
+      ]
+    },
+    {
+      "title": "sector 4 title",
+      "description": "sector 4",
+      "question_type": "extent",
+      "choices": [
+        {
+          "key": "1",
+          "value": "낮음"
+        },
+        {
+          "key": "10",
+          "value": "높음"
+        }
+      ],
+      "questions": [
+        {
+          "content": "최근의 스트레스 수치는"
+        },
+        {
+          "content": "최근의 수면의 질은"
+        }
+      ]
+    },
+    {
+      "title": "sector 5 title",
+      "description": "sector 5",
+      "question_type": "long_answer",
+      "choices": [
+        {
+          "key": "추가적으로 설명하고 싶은 부분",
+          "value": "200"
+        }
+      ],
+      "questions": [
+        {
+          "content": "피드백을 적어주세요"
+        }
+      ]
+    }
+  ],
+  "created_at": "some datetime",
+  "updated_at": "some datetime"
+}
