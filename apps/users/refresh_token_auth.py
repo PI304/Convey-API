@@ -1,6 +1,6 @@
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from config import settings
+from django.conf import settings
 
 
 class RefreshTokenAuthentication(JWTAuthentication):
