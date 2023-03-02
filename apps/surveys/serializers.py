@@ -5,7 +5,6 @@ from apps.surveys.models import (
     SurveySector,
     SectorQuestion,
     QuestionChoice,
-    ChoicesSet,
 )
 from apps.users.serializers import UserSerializer
 
@@ -35,25 +34,26 @@ class QuestionChoiceSerializer(serializers.ModelSerializer):
 
 
 class SectorQuestionSerializer(serializers.ModelSerializer):
-    choices_set = QuestionChoiceSerializer(read_only=True, many=True)
+    choices = QuestionChoiceSerializer(read_only=True, many=True)
 
     class Meta:
         model = SectorQuestion
-        fields = "__all__"
+        fields = [
+            "id",
+            "sector",
+            "choices",
+            "content",
+            "is_required",
+            "linked_sector",
+            "created_at",
+            "updated_at",
+        ]
         read_only_fields = ["id", "sector", "linked_sector", "created_at", "updated_at"]
-
-
-class ChoicesSetSerializer(serializers.ModelSerializer):
-    choice = QuestionChoiceSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = ChoicesSet
-        fields = "__all__"
-        read_only_fields = ["id", "question", "choice", "created_at", "updated_at"]
 
 
 class SurveySectorSerializer(serializers.ModelSerializer):
     questions = SectorQuestionSerializer(read_only=True, many=True)
+    common_choices = QuestionChoiceSerializer(read_only=True, many=True)
 
     class Meta:
         model = SurveySector
@@ -63,7 +63,7 @@ class SurveySectorSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "question_type",
-            "choices",
+            "common_choices",
             "questions",
         ]
         read_only_fields = [
@@ -71,15 +71,33 @@ class SurveySectorSerializer(serializers.ModelSerializer):
             "survey",
             "created_at",
             "updated_at",
-            "choices",
+            "common_choices",
             "questions",
         ]
 
 
 class SurveySerializer(serializers.ModelSerializer):
     sectors = SurveySectorSerializer(many=True, read_only=True)
+    common_choices = QuestionChoiceSerializer(many=True, read_only=True)
 
     class Meta:
         model = Survey
-        fields = ["id", "title", "description", "abbr", "author", "sectors"]
-        read_only_fields = ["id", "author", "sectors", "created_at", "updated_at"]
+        fields = [
+            "id",
+            "title",
+            "description",
+            "abbr",
+            "author",
+            "sectors",
+            "common_choices",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "author",
+            "sectors",
+            "common_choices",
+            "created_at",
+            "updated_at",
+        ]

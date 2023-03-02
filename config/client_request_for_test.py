@@ -1,10 +1,5 @@
 import json
 
-from django.shortcuts import get_object_or_404
-
-from apps.users.models import User
-from apps.users.services import UserService
-
 
 class ClientRequest:
     def __init__(self, client):

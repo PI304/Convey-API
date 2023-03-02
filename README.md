@@ -36,7 +36,9 @@ LONG_ANSWER = "long_answer", "서술형"
 <img width="472" alt="스크린샷 2023-03-01 오후 7 38 40" src="https://user-images.githubusercontent.com/89679621/222115745-b51edcb8-d752-4d53-a051-6b3ee7a6e1b2.png">
 
 각기 다른 문제 유형의 sector 들도 구성된 survey 의 샘플 데이터는
-[sampe-survey-data.json](sample-survey-data.json) 을 참고해주세요.
+[sample-survey-data.json](sample-survey-data.json) 을 참고해주세요.
+
+> ```single_select``` 와 ```multi_select``` 의 경우, survey sector 의 구성이 동일합니다
 
 
 ### 2. 시나리오별 Response Schemas
