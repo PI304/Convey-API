@@ -9,37 +9,56 @@
       "title": "sector 1 title",
       "description": "sector 1",
       "question_type": "likert",
-      "choices": [
+      "common_choices": [
         {
-          "key": "1",
-          "value": "매우 그렇다"
+          "number": "1",
+          "content": "매우 그렇다",
+          "isDescriptive": false,
+          "descForm": null
         },
         {
-          "key": "2",
-          "value": "그렇다"
+          "number": "2",
+          "content": "그렇다",
+          "isDescriptive": false,
+          "descForm": null
         },
         {
-          "key": "3",
-          "value": "보통이다"
+          "number": "3",
+          "content": "보통이다",
+          "isDescriptive": false,
+          "descForm": null
         },
         {
-          "key": "4",
-          "value": "그렇지 않다"
+          "number": "4",
+          "content": "그렇지 않다",
+          "isDescriptive": false,
+          "descForm": null
         },
         {
-          "key": "5",
-          "value": "매우 그렇지 않다"
+          "number": "5",
+          "content": "매우 그렇지 않다",
+          "isDescriptive": false,
+          "descForm": null
         }
       ],
       "questions": [
         {
-          "content": "질문1"
+          "content": "질문1",
+          "choices": null,
+          "is_required": true,
+          "linked_sector": null
         },
         {
-          "content": "질문2"
+          "content": "질문2",
+          "choices": null,
+          "is_required": true,
+          "linked_sector": null
         },
         {
-          "content": "질문3"
+          "content": "질문3",
+          "choices": null,
+          "is_required": true,
+          "linked_sector": null
         }
       ]
     },
@@ -47,22 +66,54 @@
       "title": "sector 2 title",
       "description": "sector 2",
       "question_type": "short_answer",
-      "choices": [
-        {
-          "key": "일주일에",
-          "value": "%d일"
-        },
-        {
-          "key": "하루에",
-          "value": "%d시간%d분"
-        }
-      ],
+      "common_choices": null,
       "questions": [
         {
-          "content": "한번에 적어도 10분 이상 걸은 날은 며칠?"
+          "content": "한번에 적어도 10분 이상 걸은 날은 며칠?",
+          "is_required": true,
+          "linked_sector": null,
+          "choices": [
+            {
+              "number": 1,
+              "content": null,
+              "isDescriptive": true,
+              "descForm": "일주일에 %d일"
+            }
+          ]
         },
         {
-          "content": "그런 날 중 하루에 걸으면서 보낸 시간?"
+          "content": "그런 날 중 하루에 걸으면서 보낸 시간?",
+          "choices": [
+            {
+              "number": 1,
+              "content": null,
+              "isDescriptive": true,
+              "descForm": "%d시간"
+            }
+          ]
+        },
+        {
+          "content": "복용하는 약은? (모두 적으세요)",
+          "choices": [
+            {
+              "number": 1,
+              "content": null,
+              "isDescriptive": true,
+              "descForm": "약 이름 %s, %d회 복용"
+            },
+            {
+              "number": 2,
+              "content": null,
+              "isDescriptive": true,
+              "descForm": "약 이름 %s, %d회 복용"
+            },
+            {
+              "number": 3,
+              "content": null,
+              "isDescriptive": true,
+              "descForm": "약 이름 %s, %d회 복용"
+            }
+          ]
         }
       ]
     },
@@ -70,30 +121,69 @@
       "title": "sector 3 title",
       "description": "sector 3",
       "question_type": "single_select",
-      "choices": [
-        {
-          "key": "1",
-          "value": "일주일에 4회 이상"
-        },
-        {
-          "key": "2",
-          "value": "일주일에 3회"
-        },
-        {
-          "key": "3",
-          "value": "일주일에 2회"
-        },
-        {
-          "key": "4",
-          "value": "일주일에 1회"
-        }
-      ],
+      "common_choices": null,
       "questions": [
         {
-          "content": "얼마나 자주 운동하나요"
+          "content": "오늘 아침, 연구참여 아동이 일어날 때",
+          "is_required": true,
+          "linked_sector": null,
+          "choices": [
+            {
+              "number": 1,
+              "content": "아동 스스로 일어났다",
+              "isDescriptive": false,
+              "descForm": null
+            },
+            {
+              "number": 2,
+              "content": "소음이나 소란스러움으로 인해 깼다",
+              "isDescriptive": false,
+              "descForm": null
+            },
+            {
+              "number": 3,
+              "content": "알람소리에 깼다",
+              "isDescriptive": false,
+              "descForm": null
+            },
+            {
+              "number": 4,
+              "content": "부모님이 깨워서 일어났다",
+              "isDescriptive": false,
+              "descForm": null
+            }
+          ]
         },
         {
-          "content": "늦잠은 얼마나 자주 주무시나요"
+          "content": "오늘 아침, 연구참여 아동은...",
+          "is_required": true,
+          "linked_sector": null,
+          "choices": [
+            {
+              "number": 1,
+              "content": "정신이 매우 또렷했다",
+              "isDescriptive": false,
+              "descForm": null
+            },
+            {
+              "number": 2,
+              "content": "정신이 또렷했다",
+              "isDescriptive": false,
+              "descForm": null
+            },
+            {
+              "number": 3,
+              "content": "약간 피곤해 보였다",
+              "isDescriptive": false,
+              "descForm": null
+            },
+            {
+              "number": 4,
+              "content": "매우 피곤해 보였다",
+              "isDescriptive": false,
+              "descForm": null
+            }
+          ]
         }
       ]
     },
@@ -101,22 +191,32 @@
       "title": "sector 4 title",
       "description": "sector 4",
       "question_type": "extent",
-      "choices": [
+      "common_choices": [
         {
-          "key": "1",
-          "value": "낮음"
+          "number": 1,
+          "content": "낮음",
+          "isDescriptive": false,
+          "descForm": null
         },
         {
-          "key": "10",
-          "value": "높음"
+          "number": 10,
+          "content": "높음",
+          "isDescriptive": false,
+          "descForm": null
         }
       ],
       "questions": [
         {
-          "content": "최근의 스트레스 수치는"
+          "content": "요즘의 스트레스 수치는",
+          "is_required": true,
+          "linked_sector": null,
+          "choices": null
         },
         {
-          "content": "최근의 수면의 질은"
+          "content": "요즘의 수면의 질은",
+          "is_required": true,
+          "linked_sector": null,
+          "choices": null
         }
       ]
     },
@@ -124,19 +224,15 @@
       "title": "sector 5 title",
       "description": "sector 5",
       "question_type": "long_answer",
-      "choices": [
-        {
-          "key": "추가적으로 설명하고 싶은 부분",
-          "value": "200"
-        }
-      ],
+      "common_choices": null,
       "questions": [
         {
-          "content": "피드백을 적어주세요"
+          "content": "피드백을 적어주세요",
+          "is_required": true,
+          "linked_sector": null,
+          "choices": null
         }
       ]
     }
-  ],
-  "created_at": "some datetime",
-  "updated_at": "some datetime"
+  ]
 }
