@@ -23,16 +23,32 @@ class PackageContactSerializer(serializers.ModelSerializer):
         if value not in PackageContact.ContactType.values:
             raise ValidationError("contact type must be either 'email' or 'phone'")
 
+        return value
+
 
 class SimpleSurveyPackageSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     logo = serializers.ImageField(required=False, use_url=True)
     workspace = WorkspaceSerializer(read_only=True, many=True)
-    contact_info = PackageContactSerializer(many=True, read_only=True)
+    contacts = PackageContactSerializer(many=True, read_only=True)
 
     class Meta:
         model = SurveyPackage
-        fields = "__all__"
+        fields = [
+            "id",
+            "author",
+            "workspace",
+            "title",
+            "logo",
+            "access_code",
+            "uuid",
+            "is_closed",
+            "description",
+            "manager",
+            "contacts",
+            "created_at",
+            "updated_at",
+        ]
         read_only_fields = [
             "id",
             "author",
