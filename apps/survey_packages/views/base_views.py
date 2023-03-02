@@ -17,6 +17,7 @@ from apps.survey_packages.models import (
     PackagePart,
     PackageSubject,
     PackageSubjectSurvey,
+    PackageContact,
 )
 from apps.survey_packages.serializers import (
     SurveyPackageSerializer,
@@ -24,7 +25,6 @@ from apps.survey_packages.serializers import (
     SimpleSurveyPackageSerializer,
 )
 from apps.survey_packages.services import SurveyPackageService
-from apps.users.services import UserService
 from apps.workspaces.models import Routine, Workspace
 from config.exceptions import InstanceNotFound, UnprocessableException
 from config.permissions import AdminOnly
@@ -37,7 +37,7 @@ from config.permissions import AdminOnly
     ),
 )
 class SurveyPackageListView(generics.ListCreateAPIView):
-    serializer_class = SurveyPackageSerializer
+    serializer_class = SimpleSurveyPackageSerializer
     queryset = SurveyPackage.objects.all()
     permission_classes = [permissions.IsAuthenticated, AdminOnly]
 
@@ -82,10 +82,13 @@ class SurveyPackageListView(generics.ListCreateAPIView):
             },
         ),
         responses={
-            201: openapi.Response("created", SurveyPackageSerializer),
+            201: openapi.Response("created", SimpleSurveyPackageSerializer),
         },
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        if "contacts" in request.data and type(request.data["contacts"]) != list:
+            raise ValidationError("'contacts' field must be a list")
+
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(author_id=request.user.id)
@@ -93,6 +96,7 @@ class SurveyPackageListView(generics.ListCreateAPIView):
         service = SurveyPackageService(serializer.data.get("id"))
 
         contacts = request.data.get("contacts", None)
+        print("contacts type", contacts)
         if contacts:
             package = service.add_contacts(contacts)
             return Response(
@@ -220,9 +224,9 @@ class SurveyPackageDetailView(
 
     @swagger_auto_schema(
         operation_summary="설문 패키지 기본 정보를 수정합니다",
+        operation_description="연락처 정보를 수정하는 경우, 수정된 데이터로 교체됩니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["title", "logo", "description", "manager", "contacts"],
             properties={
                 "title": openapi.Schema(
                     type=openapi.TYPE_STRING, description="설문 패키지의 제목"
@@ -254,14 +258,31 @@ class SurveyPackageDetailView(
         responses={200: openapi.Response("updated", SimpleSurveyPackageSerializer)},
     )
     def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        if "contacts" in request.data and type(request.data["contacts"]) != list:
+            raise ValidationError("'contacts' field must be a list")
+
         instance = self.get_object()
         serializer = SimpleSurveyPackageSerializer(
             instance, data=request.data, partial=True
         )
         if serializer.is_valid(raise_exception=True):
-            serializer.save(updated_at=datetime.now())
+            instance = serializer.save(updated_at=datetime.now())
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if "contacts" in request.data:
+            try:
+                PackageContact.objects.filter(survey_package_id=instance.id).delete()
+            except:
+                pass
+
+            service = SurveyPackageService(instance)
+
+            contacts = request.data.get("contacts")
+            print(contacts, type(contacts))
+            service.add_contacts(request.data.get("contacts", None))
+
+        return Response(
+            SimpleSurveyPackageSerializer(instance).data, status=status.HTTP_200_OK
+        )
 
 
 class KickOffSurveyView(APIView):
