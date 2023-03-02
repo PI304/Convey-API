@@ -1,6 +1,8 @@
+import json
 from typing import Union, List
 
 from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
 
 from apps.survey_packages.models import SurveyPackage
 from apps.survey_packages.serializers import PackageContactSerializer
@@ -14,6 +16,9 @@ class SurveyPackageService(object):
             self.package = package
 
     def add_contacts(self, contacts: List[dict]) -> SurveyPackage:
+        if type(contacts) != list:
+            raise ValidationError("'contacts' field must be a list")
+
         for c in contacts:
             serializer = PackageContactSerializer(data=c)
             if serializer.is_valid(raise_exception=True):
