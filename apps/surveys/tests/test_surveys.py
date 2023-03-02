@@ -11,15 +11,6 @@ def test_get_all_surveys(client_request, create_empty_survey):
 
 
 @pytest.mark.django_db
-def test_get_survey_by_id(client_request, create_empty_survey, create_sectors):
-    url = "/api/surveys/999/"
-    res = client_request("get", url)
-
-    assert res.status_code == 200
-    assert len(res.data["sectors"]) == 2
-
-
-@pytest.mark.django_db
 def test_create_empty_survey(client_request):
     url = "/api/surveys/"
     data = dict(title="title", description="description", abbr="test")
@@ -52,4 +43,6 @@ def test_compose_empty_survey(client_request, create_empty_survey, sample_sector
 
     print(res.data)
     assert res.status_code == 200
-    assert len(res.data) == 2
+    assert res.data["title"] == "test survey 1"
+    assert len(res.data["sectors"]) == 2
+    assert len(res.data["sectors"][0]["common_choices"]) == 5

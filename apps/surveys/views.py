@@ -13,7 +13,6 @@ from apps.surveys.models import SurveySector, Survey
 from apps.surveys.serializers import (
     SimpleSurveySerializer,
     SurveySerializer,
-    SectorChoiceSerializer,
     SurveySectorSerializer,
 )
 from apps.surveys.services import SurveyService
@@ -128,19 +127,27 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
                         type=openapi.TYPE_STRING,
                         description=f"가능한 타입은 {str(SurveySector.QuestionType.values)}",
                     ),
-                    "choices": openapi.Schema(
+                    "common_choices": openapi.Schema(
                         type=openapi.TYPE_ARRAY,
-                        description="해당 섹터의 선지 구성에 대한 정보 (선지가 다섯개라면 다섯개의 element 가 있어야 합니다)",
+                        description="하나의 섹터에 공통 선지가 적용되는 경우 ex) 리커트",
                         items=openapi.Schema(
                             type=openapi.TYPE_OBJECT,
                             properties={
-                                "key": openapi.Schema(
-                                    type=openapi.TYPE_STRING,
-                                    description="문제 유형에 따른 key-value 값 구성은 리드미 참고",
+                                "number": openapi.Schema(
+                                    type=openapi.TYPE_INTEGER,
+                                    description="문제 문항 번호",
                                 ),
-                                "value": openapi.Schema(
+                                "content": openapi.Schema(
                                     type=openapi.TYPE_STRING,
-                                    description="문제 유형에 따른 key-value 값 구성은 리드미 참고",
+                                    description="실제 선지 내용",
+                                ),
+                                "is_descriptive": openapi.Schema(
+                                    type=openapi.TYPE_BOOLEAN,
+                                    description="서술단답 여부",
+                                ),
+                                "desc_form": openapi.Schema(
+                                    type=openapi.TYPE_STRING,
+                                    description="문자열 치환자는 '%s' 숫자 치환자는 '%d'",
                                 ),
                             },
                         ),
@@ -159,6 +166,17 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
                                     default=True,
                                     description="필수 문항 여부",
                                 ),
+                                "linked_sector": openapi.Schema(
+                                    type=openapi.TYPE_INTEGER, description="연결 섹터의 id"
+                                ),
+                                "choices": openapi.Schema(
+                                    type=openapi.TYPE_ARRAY,
+                                    description="문제와 연결될 선지구성",
+                                    items=openapi.Schema(
+                                        type=openapi.TYPE_OBJECT,
+                                        description="위 공통 선지와 동일",
+                                    ),
+                                ),
                             },
                         ),
                     ),
@@ -175,7 +193,9 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         sectors = service.create_sectors(request.data)
 
-        serializer = SurveySectorSerializer(sectors, many=True)
+        survey.refresh_from_db()
+
+        serializer = self.get_serializer(survey)
 
         return Response(serializer.data)
 
