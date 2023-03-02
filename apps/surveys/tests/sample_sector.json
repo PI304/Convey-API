@@ -3,37 +3,56 @@
     "title": "sector 1 title",
     "description": "sector 1",
     "question_type": "likert",
-    "choices": [
+    "common_choices": [
       {
-        "key": "1",
-        "value": "매우 그렇다"
+        "number": "1",
+        "content": "매우 그렇다",
+        "isDescriptive": false,
+        "descForm": null
       },
       {
-        "key": "2",
-        "value": "그렇다"
+        "number": "2",
+        "content": "그렇다",
+        "isDescriptive": false,
+        "descForm": null
       },
       {
-        "key": "3",
-        "value": "보통이다"
+        "number": "3",
+        "content": "보통이다",
+        "isDescriptive": false,
+        "descForm": null
       },
       {
-        "key": "4",
-        "value": "그렇지 않다"
+        "number": "4",
+        "content": "그렇지 않다",
+        "isDescriptive": false,
+        "descForm": null
       },
       {
-        "key": "5",
-        "value": "매우 그렇지 않다"
+        "number": "5",
+        "content": "매우 그렇지 않다",
+        "isDescriptive": false,
+        "descForm": null
       }
     ],
     "questions": [
       {
-        "content": "질문1"
+        "content": "질문1",
+        "choices": null,
+        "is_required": true,
+        "linked_sector": null
       },
       {
-        "content": "질문2"
+        "content": "질문2",
+        "choices": null,
+        "is_required": true,
+        "linked_sector": null
       },
       {
-        "content": "질문3"
+        "content": "질문3",
+        "choices": null,
+        "is_required": true,
+        "linked_sector": null
       }
     ]
   },
@@ -41,22 +60,54 @@
     "title": "sector 2 title",
     "description": "sector 2",
     "question_type": "short_answer",
-    "choices": [
-      {
-        "key": "일주일에",
-        "value": "%d일"
-      },
-      {
-        "key": "하루에",
-        "value": "%d시간%d분"
-      }
-    ],
+    "common_choices": null,
     "questions": [
       {
-        "content": "한번에 적어도 10분 이상 걸은 날은 며칠?"
+        "content": "한번에 적어도 10분 이상 걸은 날은 며칠?",
+        "is_required": true,
+        "linked_sector": null,
+        "choices": [
+          {
+            "number": 1,
+            "content": null,
+            "isDescriptive": true,
+            "descForm": "일주일에 %d일"
+          }
+        ]
       },
       {
-        "content": "그런 날 중 하루에 걸으면서 보낸 시간?"
+        "content": "그런 날 중 하루에 걸으면서 보낸 시간?",
+        "choices": [
+          {
+            "number": 1,
+            "content": null,
+            "isDescriptive": true,
+            "descForm": "%d시간"
+          }
+        ]
+      },
+      {
+        "content": "복용하는 약은? (모두 적으세요)",
+        "choices": [
+          {
+            "number": 1,
+            "content": null,
+            "isDescriptive": true,
+            "descForm": "약 이름 %s, %d회 복용"
+          },
+          {
+            "number": 2,
+            "content": null,
+            "isDescriptive": true,
+            "descForm": "약 이름 %s, %d회 복용"
+          },
+          {
+            "number": 3,
+            "content": null,
+            "isDescriptive": true,
+            "descForm": "약 이름 %s, %d회 복용"
+          }
+        ]
       }
     ]
   }
