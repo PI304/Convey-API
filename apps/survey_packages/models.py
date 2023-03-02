@@ -51,11 +51,10 @@ class PackageContact(TimeStampMixin):
         PHONE_NUMBER = "phone", "휴대폰 번호"
 
     id = models.BigAutoField(primary_key=True)
-    survey_package = models.ForeignKey(SurveyPackage, on_delete=models.CASCADE)
-    type = models.SmallIntegerField(
-        null=False,
-        choices=ContactType.choices,
+    survey_package = models.ForeignKey(
+        SurveyPackage, on_delete=models.CASCADE, related_name="contacts"
     )
+    type = models.CharField(null=False, choices=ContactType.choices, max_length=10)
     content = models.CharField(max_length=50, null=False)
 
     class Meta:
