@@ -4,12 +4,7 @@ import os
 import pytest
 from django.shortcuts import get_object_or_404
 
-from apps.surveys.models import (
-    Survey,
-    SurveySector,
-    SectorQuestion,
-    QuestionChoice,
-)
+from apps.surveys.models import Survey
 from apps.surveys.services import SurveyService
 from apps.base_fixtures import *
 
