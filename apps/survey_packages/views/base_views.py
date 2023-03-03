@@ -121,38 +121,10 @@ class SurveyPackageListView(generics.ListCreateAPIView):
         responses={200: openapi.Response("ok", PackagePartSerializer(many=True))},
     ),
 )
-class SurveyPackageDetailView(
-    generics.UpdateAPIView, generics.DestroyAPIView, generics.ListAPIView
-):
+class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
     allowed_methods = ["PUT", "DELETE", "GET", "PATCH"]
     queryset = SurveyPackage.objects.all()
     serializer_class = SurveyPackageSerializer
-
-    def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        queryset = PackagePart.objects.filter(
-            survey_package_id=kwargs.get("pk")
-        ).prefetch_related(
-            Prefetch(
-                "subjects",
-                queryset=PackageSubject.objects.prefetch_related(
-                    Prefetch(
-                        "surveys",
-                        queryset=PackageSubjectSurvey.objects.prefetch_related(
-                            Prefetch("survey_content")
-                        ),
-                    ),
-                ),
-            )
-        )
-        queryset = self.filter_queryset(queryset)
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = PackagePartSerializer(queryset, many=True)
-        return Response(serializer.data)
 
     @swagger_auto_schema(
         operation_summary="빈 설문 패키지를 구성합니다. 기존의 설문 패키지가 있는 경우, 전부 삭제되고 새로운 데이터로 대체됩니다",
@@ -215,7 +187,7 @@ class SurveyPackageDetailView(
         service = SurveyPackageService(package)
         service.delete_related_components()
 
-        parts = service.create_parts(request.data)
+        parts = service.create_parts(request.data, package.id)
 
         package.refresh_from_db()
         serializer = self.get_serializer(package)
