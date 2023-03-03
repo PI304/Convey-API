@@ -33,10 +33,10 @@ class SurveyPackageService(object):
     def delete_related_components(self) -> None:
         PackagePart.objects.filter(survey_package_id=self.package.id).delete()
 
-    def create_parts(self, data: list[dict]) -> list[PackagePart]:
+    def create_parts(self, data: list[dict], package_id: int) -> list[PackagePart]:
         created_parts = []
         for d in data:
-            part = self._create_part(d)
+            part = self._create_part(d, package_id=package_id)
             created_parts.append(part)
 
         return created_parts

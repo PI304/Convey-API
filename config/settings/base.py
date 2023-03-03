@@ -138,9 +138,14 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
     "DEFAULT_PARSER_CLASSES": [
+        "rest_framework.parsers.JSONParser",
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",
         "nested_multipart_parser.drf.DrfNestedParser",
         "rest_framework.parsers.MultiPartParser",
+    ],
+    "TEST_REQUEST_RENDERER_CLASSES": [
+        "rest_framework.renderers.MultiPartRenderer",
+        "rest_framework.renderers.JSONRenderer",
     ],
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.AcceptHeaderVersioning",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",

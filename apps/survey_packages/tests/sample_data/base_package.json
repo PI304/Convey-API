@@ -1,0 +1,16 @@
+{
+  "title": "title of the survey package",
+  "description": "description of the survey package",
+  "access_code": "12345678",
+  "manager": "z9",
+  "contacts": [
+    {
+      "type": "email",
+      "content": "some@email.com"
+    },
+    {
+      "type": "phone",
+      "content": "01011112222"
+    }
+  ]
+}

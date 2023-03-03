@@ -1,0 +1,56 @@
+[
+  {
+    "title": "기초 설문",
+    "subjects": [
+      {
+        "number": 1,
+        "title": "사회 정서 발달",
+        "surveys": [
+          {
+            "title": "기질/환경민감성",
+            "survey": 999
+          },
+          {
+            "title": "사회적 기술",
+            "survey": 998
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": "가족",
+        "surveys": [
+          {
+            "title": "가족의 디지털 상호작용",
+            "survey": 999
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "디지털 일상",
+    "subjects": [
+      {
+        "number": 3,
+        "title": "스트레스",
+        "surveys": [
+          {
+            "title": null,
+            "survey": 999
+          }
+        ]
+      },
+      {
+        "number": 4,
+        "title": "수면",
+        "surveys": [
+          {
+            "title": null,
+            "survey": 999
+          }
+        ]
+      }
+    ]
+  }
+]

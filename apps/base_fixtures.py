@@ -1,8 +1,9 @@
 import pytest
+
+from config.client_request_for_test import ClientRequest
 from rest_framework.test import APIClient
 
 from apps.users.models import User
-from config.client_request_for_test import ClientRequest
 
 
 @pytest.fixture(autouse=True, scope="session")
