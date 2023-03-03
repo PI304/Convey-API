@@ -64,7 +64,14 @@ class PackageSubjectSurveySerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageSubjectSurvey
         fields = "__all__"
-        read_only_fields = ["id", "subject", "survey", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "subject",
+            "survey",
+            "created_at",
+            "updated_at",
+            "package_part",
+        ]
 
 
 class PackageSubjectSerializer(serializers.ModelSerializer):
@@ -89,12 +96,27 @@ class SurveyPackageSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     logo = serializers.ImageField(required=False, use_url=True)
     workspace = WorkspaceSerializer(read_only=True, many=True)
-    contact_info = PackageContactSerializer(many=True, read_only=True)
-    parts = PackagePartSerializer()
+    contacts = PackageContactSerializer(many=True, read_only=True)
+    parts = PackagePartSerializer(many=True, read_only=True)
 
     class Meta:
         model = SurveyPackage
-        fields = "__all__"
+        fields = [
+            "id",
+            "author",
+            "workspace",
+            "title",
+            "logo",
+            "access_code",
+            "uuid",
+            "is_closed",
+            "description",
+            "manager",
+            "contacts",
+            "parts",
+            "created_at",
+            "updated_at",
+        ]
         read_only_fields = [
             "id",
             "author",

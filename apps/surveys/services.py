@@ -88,9 +88,4 @@ class SurveyService(object):
         return sector
 
     def delete_related_sectors(self) -> None:
-        sectors: list[SurveySector] = SurveySector.objects.filter(
-            survey_id=self.survey.id
-        )
-        if sectors:
-            for s in sectors:
-                s.delete()
+        SurveySector.objects.filter(survey_id=self.survey.id).delete()

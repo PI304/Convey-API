@@ -86,6 +86,7 @@ class PackagePart(TimeStampMixin):
 
 class PackageSubject(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
+    number = models.PositiveIntegerField(null=False)
     title = models.CharField(max_length=100, null=False)
     package_part = models.ForeignKey(
         PackagePart, null=False, on_delete=models.CASCADE, related_name="subjects"
@@ -109,6 +110,7 @@ class PackageSubjectSurvey(TimeStampMixin):
     survey = models.ForeignKey(
         Survey, null=False, on_delete=models.CASCADE, related_name="survey_content"
     )
+    title = models.CharField(max_length=100, null=True)
 
     class Meta:
         db_table = "package_subject_survey"
