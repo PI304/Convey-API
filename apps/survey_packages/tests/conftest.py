@@ -1,8 +1,12 @@
 import json
 import pytest
+from django.shortcuts import get_object_or_404
 
 from apps.base_fixtures import *
+from apps.surveys.tests.conftest import create_empty_survey
 from apps.survey_packages.models import SurveyPackage, PackageContact
+from apps.survey_packages.serializers import SurveyPackageSerializer
+from apps.survey_packages.services import SurveyPackageService
 
 
 @pytest.fixture(autouse=False, scope="function")
@@ -58,3 +62,13 @@ def create_empty_survey_packages(db):
     PackageContact.objects.create(
         id=998, type="phone", content="01011112222", survey_package_id=999
     )
+
+
+@pytest.fixture(autouse=False, scope="function")
+def compose_empty_survey_package(db, sample_package_parts_data):
+    package = get_object_or_404(SurveyPackage, id=999)
+
+    service = SurveyPackageService(package)
+    service.delete_related_components()
+
+    parts = service.create_parts(sample_package_parts_data, 999)
