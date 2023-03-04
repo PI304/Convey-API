@@ -26,12 +26,12 @@ def sample_package_base_data():
 @pytest.fixture(autouse=False, scope="function")
 def sample_package_parts_data():
     try:
-        file_path = "./apps/survey_packages/tests/sample_data/survey_parts.json"
+        file_path = "./apps/survey_packages/tests/sample_data/survey_package_parts.json"
         with open(file_path, "r") as file:
             data = json.load(file)
             return data
     except FileNotFoundError:
-        file_path = "tests/sample_data/survey_parts.json"
+        file_path = "tests/sample_data/survey_package_parts.json"
         with open(file_path, "r") as file:
             data = json.load(file)
             return data

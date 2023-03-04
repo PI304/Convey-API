@@ -43,18 +43,21 @@
       ],
       "questions": [
         {
+          "number": 1,
           "content": "질문1",
           "choices": null,
           "is_required": true,
           "linked_sector": null
         },
         {
+          "number": 2,
           "content": "질문2",
           "choices": null,
           "is_required": true,
           "linked_sector": null
         },
         {
+          "number": 3,
           "content": "질문3",
           "choices": null,
           "is_required": true,
@@ -69,6 +72,7 @@
       "common_choices": null,
       "questions": [
         {
+          "number": 4,
           "content": "한번에 적어도 10분 이상 걸은 날은 며칠?",
           "is_required": true,
           "linked_sector": null,
@@ -82,6 +86,7 @@
           ]
         },
         {
+          "number": 5,
           "content": "그런 날 중 하루에 걸으면서 보낸 시간?",
           "choices": [
             {
@@ -93,6 +98,7 @@
           ]
         },
         {
+          "number": 6,
           "content": "복용하는 약은? (모두 적으세요)",
           "choices": [
             {
@@ -124,6 +130,7 @@
       "common_choices": null,
       "questions": [
         {
+          "number": 7,
           "content": "오늘 아침, 연구참여 아동이 일어날 때",
           "is_required": true,
           "linked_sector": null,
@@ -155,6 +162,7 @@
           ]
         },
         {
+          "number": 8,
           "content": "오늘 아침, 연구참여 아동은...",
           "is_required": true,
           "linked_sector": null,
@@ -207,12 +215,14 @@
       ],
       "questions": [
         {
+          "number": 9,
           "content": "요즘의 스트레스 수치는",
           "is_required": true,
           "linked_sector": null,
           "choices": null
         },
         {
+          "number": 10,
           "content": "요즘의 수면의 질은",
           "is_required": true,
           "linked_sector": null,
@@ -227,6 +237,7 @@
       "common_choices": null,
       "questions": [
         {
+          "number": 11,
           "content": "피드백을 적어주세요",
           "is_required": true,
           "linked_sector": null,
