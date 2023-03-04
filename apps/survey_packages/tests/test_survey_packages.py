@@ -3,6 +3,9 @@ import tempfile
 import pytest
 from PIL import Image
 
+from apps.survey_packages.models import PackagePart, PackageSubject
+from apps.surveys.models import Survey
+
 
 @pytest.mark.django_db
 def test_create_empty_survey_package(client_request, sample_package_base_data):
@@ -72,3 +75,24 @@ def test_get_all_survey_packages(
 
     assert res.status_code == 200
     assert len(res.data["results"]) == 2
+
+
+@pytest.mark.django_db
+def test_delete_survey_package(
+    client_request,
+    create_empty_survey,
+    create_sectors,
+    create_empty_survey_packages,
+    compose_empty_survey_package,
+):
+    url = "/api/survey-packages/999/"
+    res = client_request("del", url)
+
+    remaining_surveys = Survey.objects.all().count()
+    remaining_parts = PackagePart.objects.all().count()
+    remaining_subjects = PackageSubject.objects.all().count()
+
+    assert res.status_code == 204
+    assert remaining_surveys == 2
+    assert remaining_parts == 0
+    assert remaining_subjects == 0
