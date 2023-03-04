@@ -1,48 +1,76 @@
 from typing import Any
 
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.surveys.models import QuestionAnswer
+from apps.surveys.serializers import QuestionAnswerSerializer
+from apps.surveys.services import QuestionAnswerService
+from apps.workspaces.models import Workspace
+from config.exceptions import InstanceNotFound
 
-class SurveyPackageAnswerListView(generics.CreateAPIView):
+
+class SurveyPackageAnswerCreateView(generics.CreateAPIView):
+    queryset = QuestionAnswer.objects.all()
+    serializer_class = QuestionAnswerSerializer
+
     @swagger_auto_schema(
         tags=["survey-answer"],
-        operation_summary="해당 survey 에 대한 피험자의 응답을 생성합니다",
-        operation_description="헤더의 Authorization 를 이용하여 앱 이용자임을 식별합니다. 피험자 id 는 request body 에 명시합니다\n피험자 응답은 Part 단위로 생성하며 sector 에 대한 응답들로 리스트가 구성됩니다",
+        operation_summary="해당 survey package 에 대한 피험자의 응답을 생성합니다",
+        operation_description="헤더의 Authorization 를 이용하여 앱 이용자임을 식별합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "subject_id": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="피험자 고유 id"
+                "key": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="워크스페이스 uuid + 피험자 고유 번호 (앱에 저장해둬야 합니다)",
                 ),
-                "sectors": openapi.Schema(
+                "answers": openapi.Schema(
                     type=openapi.TYPE_ARRAY,
                     items=openapi.Schema(
                         type=openapi.TYPE_OBJECT,
                         properties={
-                            "sector_id": openapi.Schema(
-                                type=openapi.TYPE_INTEGER, description="sector id"
+                            "question_id": openapi.Schema(
+                                type=openapi.TYPE_INTEGER, description="question id"
                             ),
-                            "answers": openapi.Schema(
-                                type=openapi.TYPE_ARRAY,
-                                description="문항 응답을 순서대로 리스트에 담습니다",
-                                items=openapi.Schema(
-                                    description="문항 응답 (숫자 or 문자)",
-                                    type=openapi.TYPE_INTEGER,
-                                ),
+                            "answer": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="문항 응답을 순서대로 적습니다. 구분자는 반점입니다.",
                             ),
                         },
                     ),
                 ),
             },
         ),
+        responses={
+            201: openapi.Response("created", QuestionAnswerSerializer(many=True))
+        },
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        pass
+        key = request.data.get("key")
+        if key is None:
+            raise ValidationError("key is required")
 
+        workspace_uuid = key[:22]
+        respondent_id = key[22:]
 
-class SurveyPackageAnswerDetailView(generics.RetrieveUpdateDestroyAPIView):
-    pass
+        try:
+            workspace = get_object_or_404(Workspace, uuid=workspace_uuid)
+        except Http404:
+            raise InstanceNotFound("no workspace by the provided key")
+
+        service = QuestionAnswerService(
+            workspace.id, kwargs.get("pk"), request.user, respondent_id
+        )
+
+        answers = service.create_answers(request.data)
+
+        serializer = self.get_serializer(answers, many=True)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

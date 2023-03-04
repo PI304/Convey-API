@@ -276,7 +276,7 @@ class KickOffSurveyView(APIView):
             if workspace.access_code != code:
                 raise UnprocessableException("access code does not match")
         except Http404:
-            raise InstanceNotFound("no workspace by the provided uuid")
+            raise InstanceNotFound("no workspace by the provided key")
 
         return workspace.routine
 
