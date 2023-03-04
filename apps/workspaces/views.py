@@ -249,7 +249,7 @@ class WorkspaceAddSurveyPackageView(generics.CreateAPIView):
     )
     def post(self, request: Request, *args: Any, **kwargs) -> Response:
         try:
-            workspace = get_object_or_404(Workspace, id=kwargs.get("id", None))
+            workspace = get_object_or_404(Workspace, id=kwargs.get("pk", None))
         except Http404:
             raise InstanceNotFound("no workspace by the provided id")
 
