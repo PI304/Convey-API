@@ -298,11 +298,26 @@ class KickOffSurveyView(APIView):
                 required=True,
             ),
         ],
-        responses={200: openapi.Response("ok", SurveyPackageSerializer)},
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "workspace": openapi.Schema(
+                        type=openapi.TYPE_INTEGER, description="워크스페이스 id"
+                    ),
+                    "survey_package": openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        description="/survey-packages/{id}/ 응답과 동일",
+                    ),
+                },
+            )
+        },
     )
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> HttpResponseRedirect:
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         associated_routine = self.get_routine()
+        workspace_id = associated_routine.workspace_id
+        survey_package = SurveyPackage.objects.get(id=associated_routine.kick_off_id)
 
-        return HttpResponseRedirect(
-            redirect_to=f"/api/survey-packages/{associated_routine.kick_off_id}/"
-        )
+        serializer = SurveyPackageSerializer(survey_package)
+
+        return Response({"workspace": workspace_id, "survey_package": serializer.data})
