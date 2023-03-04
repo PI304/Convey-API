@@ -1,0 +1,16 @@
+{
+  "duration": 2,
+  "kick_off": 999,
+  "routines": [
+    {
+      "nth_day": 1,
+      "time": "09:00",
+      "survey_package": 999
+    },
+    {
+      "nth_day": 2,
+      "time": "09:00",
+      "survey_package": 998
+    }
+  ]
+}
