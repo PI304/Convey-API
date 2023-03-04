@@ -1,5 +1,6 @@
 from typing import Union
 
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
@@ -7,12 +8,16 @@ from apps.surveys.models import (
     Survey,
     SurveySector,
     SectorQuestion,
+    QuestionAnswer,
 )
 from apps.surveys.serializers import (
     SurveySectorSerializer,
     SectorQuestionSerializer,
     QuestionChoiceSerializer,
+    QuestionAnswerSerializer,
 )
+from apps.users.models import User
+from config.exceptions import InstanceNotFound
 
 
 class SurveyService(object):
@@ -88,3 +93,43 @@ class SurveyService(object):
 
     def delete_related_sectors(self) -> None:
         SurveySector.objects.filter(survey_id=self.survey.id).delete()
+
+
+class QuestionAnswerService(object):
+    def __init__(
+        self, workspace_id: int, package_id: int, user: User, respondent_id: str
+    ):
+        self.workspace_id = workspace_id
+        self.package_id = package_id
+        self.user = user
+        self.respondent_id = respondent_id
+
+    def create_answers(self, answers_list: list[dict]) -> list[QuestionAnswer]:
+        if type(answers_list) != list:
+            raise ValidationError("'answers' should be an array")
+
+        answers: list[QuestionAnswer] = []
+        for a in answers_list:
+            answers.append(self._create_answer(a))
+
+        return answers
+
+    def _create_answer(self, answer_data: dict) -> QuestionAnswer:
+        question_id = answer_data.get("question_id")
+        try:
+            question = get_object_or_404(QuestionAnswer, id=question_id)
+        except Http404:
+            raise InstanceNotFound(f"question not found: {question_id}")
+
+        serializer = QuestionAnswerSerializer(
+            data=dict(
+                respondent_id=self.respondent_id, answer=answer_data.get("answer", None)
+            )
+        )
+        if serializer.is_valid(raise_exception=True):
+            return serializer.save(
+                survey_package_id=self.package_id,
+                question_id=question_id,
+                workspace_id=self.workspace_id,
+                user_id=self.user.id,
+            )
