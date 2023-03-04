@@ -1,7 +1,12 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.workspaces.models import Workspace, Routine, RoutineDetail
+from apps.workspaces.models import (
+    Workspace,
+    Routine,
+    RoutineDetail,
+    WorkspaceComposition,
+)
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
@@ -13,10 +18,18 @@ class WorkspaceSerializer(serializers.ModelSerializer):
             "name",
             "uuid",
             "access_code",
+            "survey_packages",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "owner", "uuid", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "owner",
+            "uuid",
+            "survey_packages",
+            "created_at",
+            "updated_at",
+        ]
 
     def validate_access_code(self, value: str) -> str:
         if len(value) < 6:
@@ -90,3 +103,16 @@ class RoutineSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise ValidationError("duration of the routine should exceed 0")
         return value
+
+
+class WorkspaceCompositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkspaceComposition
+        fields = ["id", "survey_package", "workspace", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "survey_package",
+            "workspace",
+            "created_at",
+            "updated_at",
+        ]

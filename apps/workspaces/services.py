@@ -1,10 +1,15 @@
 from typing import List, Union
 
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
-from apps.workspaces.models import Routine
-from apps.workspaces.serializers import RoutineDetailSerializer
+from apps.survey_packages.models import SurveyPackage
+from apps.workspaces.models import Routine, Workspace, WorkspaceComposition
+from apps.workspaces.serializers import (
+    RoutineDetailSerializer,
+    WorkspaceCompositionSerializer,
+)
 
 
 class RoutineService(object):
@@ -27,3 +32,25 @@ class RoutineService(object):
                 s.save(survey_package_id=survey_package_id, routine_id=self.routine.id)
 
         return self.routine
+
+
+class WorkspaceService(object):
+    def __init__(self, workspace: Union[Workspace, int]):
+        if type(workspace) == int:
+            self.workspace = get_object_or_404(Workspace, id=workspace)
+        else:
+            self.workspace = workspace
+
+    def add_survey_packages(self, package_ids: list[int]):
+        for pid in package_ids:
+            try:
+                package = get_object_or_404(SurveyPackage, id=pid)
+            except Http404:
+                raise ValidationError(f"invalid package id: {pid}")
+
+            serializer = WorkspaceCompositionSerializer(data={})
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(survey_package_id=pid, workspace_id=self.workspace.id)
+
+        self.workspace.refresh_from_db()
+        return self.workspace
