@@ -44,7 +44,7 @@ class WorkspaceComposition(TimeStampMixin):
 
 class Routine(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
-    workspace = models.ForeignKey(
+    workspace = models.OneToOneField(
         Workspace, on_delete=models.CASCADE, related_name="routine"
     )
     duration = models.IntegerField(null=False)
