@@ -30,7 +30,7 @@ EXTENT = "extent", "정도"
 LONG_ANSWER = "long_answer", "서술형"
 ```
 
-각 sector 는 하나의 문제 유형만으로 구성되며 하나의 sector 내에서는 선지 구성 역시 동일합니다.
+각 sector 는 하나의 문제 유형만으로 구성됩니다.
 
 (ex: 리커트 척도를 문제유형으로 가지는 sector 의 경우, 
 1번부터 5번으로 구성된 같은 선지가 전체 sector 에 걸쳐 적용되며
