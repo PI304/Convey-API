@@ -1,6 +1,7 @@
 import pytest
+from django.shortcuts import get_object_or_404
 
-from apps.workspaces.models import RoutineDetail
+from apps.workspaces.models import RoutineDetail, Workspace
 
 
 @pytest.mark.django_db
@@ -113,3 +114,22 @@ def test_remove_survey_package_from_workspace(
 
     assert res.status_code == 200
     assert len(res.data["survey_packages"]) == 1
+
+
+@pytest.mark.django_db
+def test_get_kick_off_survey_package(
+    client_request,
+    create_empty_survey_packages,
+    create_empty_survey,
+    create_sectors,
+    compose_empty_survey_package,
+    create_workspaces,
+    create_workspace_routine,
+    add_survey_packages_to_workspace,
+):
+    workspace = get_object_or_404(Workspace, id=999)
+    url = f"/api/survey-packages/kick-off/?key={workspace.uuid}someuuidforrespondent&code={workspace.access_code}"
+    res = client_request("get", url)
+
+    assert res.status_code == 302
+    assert res["Location"] == "/api/survey-packages/999/"
