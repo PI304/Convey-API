@@ -115,7 +115,10 @@ class QuestionChoice(TimeStampMixin):
 
 class QuestionAnswer(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
-    question = models.ForeignKey(SectorQuestion, on_delete=models.SET_NULL, null=True)
+    survey_package = models.ForeignKey(
+        "survey_packages.SurveyPackage", null=True, on_delete=models.SET_NULL
+    )
+    question = models.ForeignKey(SectorQuestion, on_delete=models.CASCADE, null=False)
     respondent_id = models.CharField(max_length=30, null=False)
     subject = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     answer = models.CharField(max_length=1000, null=False)
