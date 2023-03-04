@@ -45,6 +45,7 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
             "routine",
             "nth_day",
             "time",
+            "survey_package",
             "created_at",
             "updated_at",
         ]

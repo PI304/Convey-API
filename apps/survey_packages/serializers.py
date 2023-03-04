@@ -10,7 +10,6 @@ from apps.survey_packages.models import (
 )
 from apps.surveys.serializers import SurveySerializer
 from apps.users.serializers import UserSerializer
-from apps.workspaces.serializers import WorkspaceSerializer
 
 
 class PackageContactSerializer(serializers.ModelSerializer):
@@ -29,7 +28,6 @@ class PackageContactSerializer(serializers.ModelSerializer):
 class SimpleSurveyPackageSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     logo = serializers.ImageField(required=False, use_url=True)
-    workspace = WorkspaceSerializer(read_only=True, many=True)
     contacts = PackageContactSerializer(many=True, read_only=True)
 
     class Meta:
@@ -37,7 +35,6 @@ class SimpleSurveyPackageSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "author",
-            "workspace",
             "title",
             "logo",
             "access_code",
@@ -95,7 +92,6 @@ class PackagePartSerializer(serializers.ModelSerializer):
 class SurveyPackageSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     logo = serializers.ImageField(required=False, use_url=True)
-    workspace = WorkspaceSerializer(read_only=True, many=True)
     contacts = PackageContactSerializer(many=True, read_only=True)
     parts = PackagePartSerializer(many=True, read_only=True)
 
@@ -104,7 +100,6 @@ class SurveyPackageSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "author",
-            "workspace",
             "title",
             "logo",
             "access_code",
@@ -120,7 +115,6 @@ class SurveyPackageSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "author",
-            "workspace",
             "created_at",
             "updated_at",
         ]

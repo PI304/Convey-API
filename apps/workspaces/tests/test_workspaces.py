@@ -131,5 +131,6 @@ def test_get_kick_off_survey_package(
     url = f"/api/survey-packages/kick-off/?key={workspace.uuid}someuuidforrespondent&code={workspace.access_code}"
     res = client_request("get", url)
 
-    assert res.status_code == 302
-    assert res["Location"] == "/api/survey-packages/999/"
+    assert res.status_code == 200
+    assert res.data["workspace"] == 999
+    assert len(res.data["survey_package"]["parts"]) == 2
