@@ -1,11 +1,9 @@
 import json
 import pytest
-from django.shortcuts import get_object_or_404
 
 from apps.base_fixtures import *
 from apps.surveys.tests.conftest import *
 from apps.survey_packages.models import SurveyPackage, PackageContact
-from apps.survey_packages.serializers import SurveyPackageSerializer
 from apps.survey_packages.services import SurveyPackageService
 
 

@@ -132,5 +132,4 @@ def test_get_kick_off_survey_package(
     res = client_request("get", url)
 
     assert res.status_code == 200
-    assert res.data["workspace"] == 999
-    assert len(res.data["survey_package"]["parts"]) == 2
+    assert len(res.data["parts"]) == 2
