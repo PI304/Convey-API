@@ -8,17 +8,23 @@ from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.survey_packages.models import SurveyPackage
-from apps.workspaces.models import Workspace, Routine, RoutineDetail
+from apps.workspaces.models import (
+    Workspace,
+    Routine,
+    RoutineDetail,
+    WorkspaceComposition,
+)
 from apps.workspaces.serializers import (
     WorkspaceSerializer,
     RoutineSerializer,
     RoutineDetailSerializer,
 )
-from apps.workspaces.services import RoutineService
+from apps.workspaces.services import RoutineService, WorkspaceService
 from config.exceptions import InstanceNotFound
 
 
@@ -221,3 +227,69 @@ class RoutineDetailCreateView(generics.CreateAPIView):
 class RoutineDetailView(generics.RetrieveDestroyAPIView):
     queryset = RoutineDetail.objects.all()
     serializer_class = RoutineDetailSerializer
+
+
+class WorkspaceAddSurveyPackageView(generics.CreateAPIView):
+    queryset = Workspace.objects.all()
+    serializer_class = WorkspaceSerializer
+
+    @swagger_auto_schema(
+        operation_summary="워크스페이스에 설문 패키지를 추가합니다",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "survey_packages": openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    description="추가하고 싶은 모든 survey package 들의 id",
+                    items=openapi.Schema(type=openapi.TYPE_INTEGER),
+                )
+            },
+        ),
+        responses={201: openapi.Response("created", WorkspaceSerializer)},
+    )
+    def post(self, request: Request, *args: Any, **kwargs) -> Response:
+        try:
+            workspace = get_object_or_404(Workspace, id=kwargs.get("id", None))
+        except Http404:
+            raise InstanceNotFound("no workspace by the provided id")
+
+        survey_package_ids = request.data.get("survey_packages")
+        if type(survey_package_ids) != list:
+            raise ValidationError("'survey_packages' must be an array")
+
+        service = WorkspaceService(workspace)
+        workspace = service.add_survey_packages(survey_package_ids)
+
+        serializer = self.get_serializer(workspace)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class WorkspaceDestroySurveyPackageView(generics.DestroyAPIView):
+    queryset = WorkspaceComposition.objects.all()
+    serializer_class = WorkspaceSerializer
+
+    def get_queryset(self) -> QuerySet:
+        return self.queryset.filter(survey_package_id=self.kwargs.get("pk"))
+
+    @swagger_auto_schema(
+        operation_summary="워크스페이스에서 설문 패키지를 제거합니다",
+        manual_parameters=[
+            openapi.Parameter(
+                "id",
+                openapi.IN_QUERY,
+                description="제외시키고자 하는 설문 패키지 id",
+                type=openapi.TYPE_INTEGER,
+            )
+        ],
+        responses={200: openapi.Response("deleted", WorkspaceSerializer)},
+    )
+    def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        instance: WorkspaceComposition = self.get_object()
+        workspace = get_object_or_404(Workspace, id=instance.workspace_id)
+        instance.delete()
+
+        workspace.refresh_from_db()
+        serializer = self.get_serializer(workspace)
+
+        return Response(serializer.data)
