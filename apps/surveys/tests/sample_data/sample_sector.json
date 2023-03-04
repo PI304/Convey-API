@@ -7,32 +7,32 @@
       {
         "number": "1",
         "content": "매우 그렇다",
-        "isDescriptive": false,
-        "descForm": null
+        "is_descriptive": false,
+        "desc_form": null
       },
       {
         "number": "2",
         "content": "그렇다",
-        "isDescriptive": false,
-        "descForm": null
+        "is_descriptive": false,
+        "desc_form": null
       },
       {
         "number": "3",
         "content": "보통이다",
-        "isDescriptive": false,
-        "descForm": null
+        "is_descriptive": false,
+        "desc_form": null
       },
       {
         "number": "4",
         "content": "그렇지 않다",
-        "isDescriptive": false,
-        "descForm": null
+        "is_descriptive": false,
+        "desc_form": null
       },
       {
         "number": "5",
         "content": "매우 그렇지 않다",
-        "isDescriptive": false,
-        "descForm": null
+        "is_descriptive": false,
+        "desc_form": null
       }
     ],
     "questions": [
@@ -74,8 +74,8 @@
           {
             "number": 1,
             "content": null,
-            "isDescriptive": true,
-            "descForm": "일주일에 %d일"
+            "is_descriptive": true,
+            "desc_form": "일주일에 %d일"
           }
         ]
       },
@@ -86,8 +86,8 @@
           {
             "number": 1,
             "content": null,
-            "isDescriptive": true,
-            "descForm": "%d시간"
+            "is_descriptive": true,
+            "desc_form": "%d시간"
           }
         ]
       },
@@ -98,20 +98,20 @@
           {
             "number": 1,
             "content": null,
-            "isDescriptive": true,
-            "descForm": "약 이름 %s, %d회 복용"
+            "is_descriptive": true,
+            "desc_form": "약 이름 %s, %d회 복용"
           },
           {
             "number": 2,
             "content": null,
-            "isDescriptive": true,
-            "descForm": "약 이름 %s, %d회 복용"
+            "is_descriptive": true,
+            "desc_form": "약 이름 %s, %d회 복용"
           },
           {
             "number": 3,
             "content": null,
-            "isDescriptive": true,
-            "descForm": "약 이름 %s, %d회 복용"
+            "is_descriptive": true,
+            "desc_form": "약 이름 %s, %d회 복용"
           }
         ]
       }

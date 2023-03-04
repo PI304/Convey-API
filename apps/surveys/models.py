@@ -53,6 +53,7 @@ class SectorQuestion(TimeStampMixin):
     sector = models.ForeignKey(
         SurveySector, on_delete=models.CASCADE, related_name="questions"
     )
+    number = models.IntegerField(null=False)
     content = models.CharField(max_length=200, null=False)
     is_required = models.BooleanField(default=True)
     linked_sector = models.ForeignKey(

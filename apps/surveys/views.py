@@ -9,7 +9,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.surveys.models import SurveySector, Survey
+from apps.surveys.models import SurveySector, Survey, SectorQuestion
 from apps.surveys.serializers import (
     SimpleSurveySerializer,
     SurveySerializer,
@@ -105,7 +105,13 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
         return self.queryset.prefetch_related(
             Prefetch(
                 "sectors",
-                queryset=SurveySector.objects.prefetch_related("choices", "questions"),
+                queryset=SurveySector.objects.prefetch_related(
+                    "common_choices",
+                    Prefetch(
+                        "questions",
+                        queryset=SectorQuestion.objects.prefetch_related("choices"),
+                    ),
+                ),
             )
         )
 
@@ -158,6 +164,9 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
                         items=openapi.Schema(
                             type=openapi.TYPE_OBJECT,
                             properties={
+                                "number": openapi.Schema(
+                                    type=openapi.TYPE_INTEGER, description="문항 번호"
+                                ),
                                 "content": openapi.Schema(
                                     type=openapi.TYPE_STRING, description="실제 문항 내용"
                                 ),
