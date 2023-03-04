@@ -10,7 +10,7 @@ class Workspace(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
     owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=30)
-    uuid = shortuuid.ShortUUID()
+    uuid = models.CharField(max_length=22, null=False)
     access_code = models.CharField(max_length=128, null=False)
 
     class Meta:
@@ -63,7 +63,7 @@ class Routine(TimeStampMixin):
 class RoutineDetail(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
     routine = models.ForeignKey(
-        Routine, on_delete=models.CASCADE, related_name="routine_details"
+        Routine, on_delete=models.CASCADE, related_name="routines"
     )
     nth_day = models.PositiveSmallIntegerField(null=False)
     time = models.CharField(max_length=5, null=False)

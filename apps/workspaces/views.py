@@ -1,5 +1,6 @@
 from typing import Any
 
+import shortuuid
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -55,11 +56,18 @@ class WorkspaceListView(generics.ListCreateAPIView):
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(owner_id=request.user.id)
+            serializer.save(owner_id=request.user.id, uuid=shortuuid.uuid())
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@method_decorator(
+    name="get",
+    decorator=swagger_auto_schema(
+        operation_summary="해당 id 의 workspace 를 가져옵니다",
+        responses={200: openapi.Response("ok", WorkspaceSerializer)},
+    ),
+)
 @method_decorator(
     name="delete",
     decorator=swagger_auto_schema(
@@ -70,7 +78,7 @@ class WorkspaceListView(generics.ListCreateAPIView):
         },
     ),
 )
-class WorkspaceDestroyView(generics.DestroyAPIView):
+class WorkspaceDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = WorkspaceSerializer
     queryset = Workspace.objects.all()
 
@@ -138,15 +146,16 @@ class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
                 "survey package allocated for kick-off survey does not exist"
             )
 
-        data = dict(
-            kick_off=kick_off_package, duration=request.data.get("duration", None)
-        )
+        data = dict(duration=request.data.get("duration", None))
 
         # Create Routine
         routine_serializer = self.get_serializer(data=data)
 
         if routine_serializer.is_valid(raise_exception=True):
-            routine_serializer.save(workspace_id=kwargs.get("pk"))
+            routine_serializer.save(
+                workspace_id=kwargs.get("pk"),
+                kick_off_id=kick_off_package_id,
+            )
 
         routine_service = RoutineService(routine_serializer.data.get("id"))
 
@@ -154,6 +163,7 @@ class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
         routine_details = request.data.get("routines", None)
         if routine_details:
             routine = routine_service.add_routine_details(routine_details)
+            routine.refresh_from_db()
             return Response(
                 self.get_serializer(routine).data, status=status.HTTP_201_CREATED
             )
@@ -168,6 +178,9 @@ class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
+                "routine": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="전체 루틴의 id"
+                ),
                 "nth_day": openapi.Schema(
                     type=openapi.TYPE_INTEGER, description="n번째 날"
                 ),
@@ -188,17 +201,23 @@ class RoutineDetailCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(
-            routine_id=self.request.data.get("routine_id", None),
+            routine_id=self.request.data.get("routine", None),
             survey_package_id=self.request.data.get("survey_package", None),
         )
 
 
+@method_decorator(
+    name="get",
+    decorator=swagger_auto_schema(
+        operation_summary="id 에 따라 루틴의 세부 일정을 가져옵니다",
+    ),
+)
 @method_decorator(
     name="delete",
     decorator=swagger_auto_schema(
         operation_summary="루틴의 세부 일정을 삭제합니다",
     ),
 )
-class RoutineDetailView(generics.DestroyAPIView):
+class RoutineDetailView(generics.RetrieveDestroyAPIView):
     queryset = RoutineDetail.objects.all()
     serializer_class = RoutineDetailSerializer
