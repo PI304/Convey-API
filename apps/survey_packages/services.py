@@ -36,12 +36,12 @@ class SurveyPackageService(object):
     def create_parts(self, data: list[dict], package_id: int) -> list[PackagePart]:
         created_parts = []
         for d in data:
-            part = self._create_part(d, package_id=package_id)
+            part = self.create_part(d, package_id=package_id)
             created_parts.append(part)
 
         return created_parts
 
-    def _create_part(self, part_data: dict, package_id: int) -> PackagePart:
+    def create_part(self, part_data: dict, package_id: int) -> PackagePart:
         # Create a part
         if "title" not in part_data or part_data["title"] is None:
             raise ValidationError("a part should have a title")
@@ -66,13 +66,11 @@ class SurveyPackageService(object):
         if serializer.is_valid(raise_exception=True):
             subject = serializer.save(package_part_id=part_id)
 
-        self._associate_subject_with_surveys(
+        self.associate_subject_with_surveys(
             subject.id, subject_data.get("surveys", None)
         )
 
-    def _associate_subject_with_surveys(
-        self, subject_id: int, data: list[dict]
-    ) -> None:
+    def associate_subject_with_surveys(self, subject_id: int, data: list[dict]) -> None:
         for ss in data:
             serializer = PackageSubjectSurveySerializer(
                 data=dict(title=ss.get("title", None))

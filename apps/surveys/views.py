@@ -27,7 +27,7 @@ from config.permissions import AdminOnly, IsAdminOrReadOnly, IsAuthorOrReadOnly
     ),
 )
 class SurveyListView(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticated, AdminOnly]
+    # permission_classes = [permissions.IsAuthenticated, AdminOnly]
     queryset = Survey.objects.all()
     serializer_class = SimpleSurveySerializer
 
