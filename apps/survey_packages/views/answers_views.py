@@ -41,7 +41,7 @@ class SurveyPackageAnswerCreateView(generics.CreateAPIView):
                             ),
                             "answer": openapi.Schema(
                                 type=openapi.TYPE_STRING,
-                                description="문항 응답을 순서대로 적습니다. 구분자는 반점입니다.",
+                                description="문항 응답을 순서대로 적습니다. 구분자는 $입니다.",
                             ),
                         },
                     ),
