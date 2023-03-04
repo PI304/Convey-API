@@ -28,7 +28,9 @@ class WorkspaceComposition(TimeStampMixin):
     survey_package = models.ForeignKey(
         "survey_packages.SurveyPackage", on_delete=models.CASCADE
     )
-    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
+    workspace = models.ForeignKey(
+        Workspace, on_delete=models.CASCADE, related_name="survey_packages"
+    )
 
     class Meta:
         db_table = "workspace_composition"
