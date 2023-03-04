@@ -189,9 +189,84 @@ subject 인 '양육' 만이 포함되어 있으며 survey 의 직접적인 제�
 <img width="471" alt="스크린샷 2023-03-04 오전 11 25 28" src="https://user-images.githubusercontent.com/89679621/222870992-97847277-9648-4a13-a414-aa577c03f5e2.png">
 
 
-
 전체적 데이터 샘플은 [survey_package_parts.json](apps/survey-packages/tests/sample_data/survey_package_parts.json) 을 참고해주세요.
 
+
+---
+
+
+#### 5) survey package 에 대한 피험자 응답 보내기
+```json
+{
+  "key": "워크스페이스 uuid + 피험자 고유 번호",
+  "answers": [...]
+}
+```
+> 처음 kick-off survey package 를 가지고 올 때 피험자가 입력했던 key 를 저장해두고 
+> 어떤 survey package 에 대한 응답을 보낼 때마다 함께 전송하도록 합니다.
+
+**문제유형별 answer schema 1: likert, single_select, multi_select, extent**
+```json
+{
+  "question_id": 1,
+  "answer": "1"
+}
+```
+> ⚠️ answer 필드는 항상 string 입니다. string 으로 보내나 유효한 숫자가 아니면 에러를 반환합니다.
+
+
+**문제유형별 answer schema 2: short_answer**
+```json
+{
+  "question_id": 1,
+  "answer": "2, 30" -> ex.2시간 30분
+}
+```
+> ⚠️ 채워넣어야 하는 빈칸이 여러 개인 short_answer 유형의 경우 반점으로 구분하여 
+> string 으로 보냅니다.
+> 
+```json
+{
+  "number": 6,
+  "content": "복용하는 약은? (모두 적으세요)",
+  "choices": [
+    {
+      "number": 1,
+      "content": null,
+      "is_descriptive": true,
+      "desc_form": "약 이름 %s, %d회 복용"
+    },
+    {
+      "number": 2,
+      "content": null,
+      "is_descriptive": true,
+      "desc_form": "약 이름 %s, %d회 복용"
+    },
+    {
+      "number": 3,
+      "content": null,
+      "is_descriptive": true,
+      "desc_form": "약 이름 %s, %d회 복용"
+    }
+  ]
+}
+```
+위와 같이 한 문제에 단답형 선지가 여러 개 존재하는 경우, 아래와 같이 응답을 작성합니다.
+
+```json
+{
+  "question_id": "999",
+  "answer": "타이레놀, 2회, 타이레놀, 2회, 타이레놀, 2회"
+}
+```
+
+**문제유형별 answer schema 3: long_answer**
+```json
+{
+  "question_id": 1,
+  "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum nisi ligula. Mauris metus nulla, cursus in ante non, sollicitudin ullamcorper est. Sed nec ante et velit malesuada ornare vitae at nunc. Maecenas dignissim sollicitudin mi quis pulvinar. Integer imperdiet odio sit amet lacinia suscipit. Fusce bibendum interdum risus, id lobortis ipsum rhoncus et. Nam ac tortor non lectus bibendum auctor eget in ex."
+}
+```
 
 ---
 

@@ -87,7 +87,7 @@ class SurveyListView(generics.ListCreateAPIView):
 @method_decorator(
     name="delete",
     decorator=swagger_auto_schema(
-        operation_summary="설문을 완전히 삭제합니다. 관련된 모든 데이터들이 삭제됩니다",
+        operation_summary="설문을 완전히 삭제합니다. 응답을 포함한 관련된 모든 하위 데이터들이 삭제됩니다",
         responses={204: "no content"},
     ),
 )

@@ -108,7 +108,7 @@ class SurveyPackageListView(generics.ListCreateAPIView):
 @method_decorator(
     name="delete",
     decorator=swagger_auto_schema(
-        operation_summary="설문 패키지를 완전히 삭제합니다. 관련된 모든 데이터들이 삭제됩니다",
+        operation_summary="설문 패키지를 완전히 삭제합니다. 독립적으로 존재하는 survey 를 제외하고 관련된 모든 데이터들이 삭제됩니다",
         responses={
             204: "No content",
         },
@@ -276,7 +276,7 @@ class KickOffSurveyView(APIView):
             if workspace.access_code != code:
                 raise UnprocessableException("access code does not match")
         except Http404:
-            raise InstanceNotFound("no workspace by the provided uuid")
+            raise InstanceNotFound("no workspace by the provided key")
 
         return workspace.routine
 
@@ -315,9 +315,8 @@ class KickOffSurveyView(APIView):
     )
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         associated_routine = self.get_routine()
-        workspace_id = associated_routine.workspace_id
         survey_package = SurveyPackage.objects.get(id=associated_routine.kick_off_id)
 
         serializer = SurveyPackageSerializer(survey_package)
 
-        return Response({"workspace": workspace_id, "survey_package": serializer.data})
+        return Response(serializer.data)

@@ -5,6 +5,7 @@ from apps.surveys.models import (
     SurveySector,
     SectorQuestion,
     QuestionChoice,
+    QuestionAnswer,
 )
 from apps.users.serializers import UserSerializer
 
@@ -79,7 +80,6 @@ class SurveySectorSerializer(serializers.ModelSerializer):
 
 class SurveySerializer(serializers.ModelSerializer):
     sectors = SurveySectorSerializer(many=True, read_only=True)
-    common_choices = QuestionChoiceSerializer(many=True, read_only=True)
 
     class Meta:
         model = Survey
@@ -90,7 +90,6 @@ class SurveySerializer(serializers.ModelSerializer):
             "abbr",
             "author",
             "sectors",
-            "common_choices",
             "created_at",
             "updated_at",
         ]
@@ -98,7 +97,21 @@ class SurveySerializer(serializers.ModelSerializer):
             "id",
             "author",
             "sectors",
-            "common_choices",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class QuestionAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionAnswer
+        fields = "__all__"
+        read_only_fields = [
+            "id",
+            "survey_package",
+            "user",
+            "question",
+            "workspace",
             "created_at",
             "updated_at",
         ]
