@@ -39,7 +39,7 @@ from config.permissions import AdminOnly, IsAuthorOrReadOnly
 class SurveyPackageListView(generics.ListCreateAPIView):
     serializer_class = SimpleSurveyPackageSerializer
     queryset = SurveyPackage.objects.all()
-    permission_classes = [permissions.IsAuthenticated, AdminOnly]
+    # permission_classes = [permissions.IsAuthenticated, AdminOnly]
 
     def get_queryset(self) -> QuerySet:
         return self.queryset.filter(author_id=self.request.user.id)
@@ -125,7 +125,7 @@ class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
     allowed_methods = ["PUT", "DELETE", "GET", "PATCH"]
     queryset = SurveyPackage.objects.all()
     serializer_class = SurveyPackageSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    # permission_classes = [IsAuthorOrReadOnly]
 
     @swagger_auto_schema(
         operation_summary="빈 설문 패키지를 구성합니다. 기존의 설문 패키지가 있는 경우, 전부 삭제되고 새로운 데이터로 대체됩니다",
