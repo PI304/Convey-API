@@ -34,7 +34,6 @@ class SurveyService(object):
     def _make_common_choices(
         self, common_choices_list: list[dict], sector_id: int
     ) -> None:
-        print("making common choices")
         for c in common_choices_list:
             serializer = QuestionChoiceSerializer(data=c)
             if serializer.is_valid(raise_exception=True):

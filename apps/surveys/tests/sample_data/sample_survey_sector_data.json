@@ -13,32 +13,32 @@
         {
           "number": "1",
           "content": "매우 그렇다",
-          "isDescriptive": false,
-          "descForm": null
+          "is_descriptive": false,
+          "desc_form": null
         },
         {
           "number": "2",
           "content": "그렇다",
-          "isDescriptive": false,
-          "descForm": null
+          "is_descriptive": false,
+          "desc_form": null
         },
         {
           "number": "3",
           "content": "보통이다",
-          "isDescriptive": false,
-          "descForm": null
+          "is_descriptive": false,
+          "desc_form": null
         },
         {
           "number": "4",
           "content": "그렇지 않다",
-          "isDescriptive": false,
-          "descForm": null
+          "is_descriptive": false,
+          "desc_form": null
         },
         {
           "number": "5",
           "content": "매우 그렇지 않다",
-          "isDescriptive": false,
-          "descForm": null
+          "is_descriptive": false,
+          "desc_form": null
         }
       ],
       "questions": [
@@ -80,8 +80,8 @@
             {
               "number": 1,
               "content": null,
-              "isDescriptive": true,
-              "descForm": "일주일에 %d일"
+              "is_descriptive": true,
+              "desc_form": "일주일에 %d일"
             }
           ]
         },
@@ -92,8 +92,8 @@
             {
               "number": 1,
               "content": null,
-              "isDescriptive": true,
-              "descForm": "%d시간"
+              "is_descriptive": true,
+              "desc_form": "%d시간"
             }
           ]
         },
@@ -104,20 +104,20 @@
             {
               "number": 1,
               "content": null,
-              "isDescriptive": true,
-              "descForm": "약 이름 %s, %d회 복용"
+              "is_descriptive": true,
+              "desc_form": "약 이름 %s, %d회 복용"
             },
             {
               "number": 2,
               "content": null,
-              "isDescriptive": true,
-              "descForm": "약 이름 %s, %d회 복용"
+              "is_descriptive": true,
+              "desc_form": "약 이름 %s, %d회 복용"
             },
             {
               "number": 3,
               "content": null,
-              "isDescriptive": true,
-              "descForm": "약 이름 %s, %d회 복용"
+              "is_descriptive": true,
+              "desc_form": "약 이름 %s, %d회 복용"
             }
           ]
         }
@@ -138,26 +138,26 @@
             {
               "number": 1,
               "content": "아동 스스로 일어났다",
-              "isDescriptive": false,
-              "descForm": null
+              "is_descriptive": false,
+              "desc_form": null
             },
             {
               "number": 2,
               "content": "소음이나 소란스러움으로 인해 깼다",
-              "isDescriptive": false,
-              "descForm": null
+              "is_descriptive": false,
+              "desc_form": null
             },
             {
               "number": 3,
               "content": "알람소리에 깼다",
-              "isDescriptive": false,
-              "descForm": null
+              "is_descriptive": false,
+              "desc_form": null
             },
             {
               "number": 4,
               "content": "부모님이 깨워서 일어났다",
-              "isDescriptive": false,
-              "descForm": null
+              "is_descriptive": false,
+              "desc_form": null
             }
           ]
         },
@@ -170,26 +170,26 @@
             {
               "number": 1,
               "content": "정신이 매우 또렷했다",
-              "isDescriptive": false,
-              "descForm": null
+              "is_descriptive": false,
+              "desc_form": null
             },
             {
               "number": 2,
               "content": "정신이 또렷했다",
-              "isDescriptive": false,
-              "descForm": null
+              "is_descriptive": false,
+              "desc_form": null
             },
             {
               "number": 3,
               "content": "약간 피곤해 보였다",
-              "isDescriptive": false,
-              "descForm": null
+              "is_descriptive": false,
+              "desc_form": null
             },
             {
               "number": 4,
               "content": "매우 피곤해 보였다",
-              "isDescriptive": false,
-              "descForm": null
+              "is_descriptive": false,
+              "desc_form": null
             }
           ]
         }
@@ -203,14 +203,14 @@
         {
           "number": 1,
           "content": "낮음",
-          "isDescriptive": false,
-          "descForm": null
+          "is_descriptive": false,
+          "desc_form": null
         },
         {
           "number": 10,
           "content": "높음",
-          "isDescriptive": false,
-          "descForm": null
+          "is_descriptive": false,
+          "desc_form": null
         }
       ],
       "questions": [

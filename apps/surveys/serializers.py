@@ -42,6 +42,7 @@ class SectorQuestionSerializer(serializers.ModelSerializer):
             "id",
             "sector",
             "choices",
+            "number",
             "content",
             "is_required",
             "linked_sector",
