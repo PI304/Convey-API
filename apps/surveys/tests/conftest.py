@@ -9,10 +9,16 @@ from apps.base_fixtures import *
 
 @pytest.fixture(autouse=False, scope="function")
 def sample_sector_data():
-    file_path = "./apps/surveys/tests/sample_sector.json"
-    with open(file_path, "r") as file:
-        data = json.load(file)
-        return data
+    try:
+        file_path = "./apps/surveys/tests/sample_data/sample_sector.json"
+        with open(file_path, "r") as file:
+            data = json.load(file)
+            return data
+    except FileNotFoundError:
+        file_path = "tests/sample_data/sample_sector.json"
+        with open(file_path, "r") as file:
+            data = json.load(file)
+            return data
 
 
 @pytest.fixture(autouse=False, scope="function")
