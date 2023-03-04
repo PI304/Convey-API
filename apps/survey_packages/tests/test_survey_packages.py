@@ -2,7 +2,6 @@ import tempfile
 
 import pytest
 from PIL import Image
-from rest_framework.test import APIRequestFactory, APIClient
 
 
 @pytest.mark.django_db
@@ -62,3 +61,14 @@ def test_get_survey_package_by_id(
     assert res.data["id"] == 999
     assert len(res.data["parts"]) == 2
     assert len(res.data["parts"][0]["subjects"]) == 2
+
+
+@pytest.mark.django_db
+def test_get_all_survey_packages(
+    client_request, create_empty_survey, create_empty_survey_packages
+):
+    url = "/api/survey-packages/"
+    res = client_request("get", url)
+
+    assert res.status_code == 200
+    assert len(res.data["results"]) == 2

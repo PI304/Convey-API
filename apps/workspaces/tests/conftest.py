@@ -3,7 +3,8 @@ import json
 import shortuuid
 
 from apps.base_fixtures import *
-from apps.survey_packages.tests.conftest import create_empty_survey_packages
+from apps.surveys.tests.conftest import *
+from apps.survey_packages.tests.conftest import *
 from apps.workspaces.models import (
     Workspace,
     Routine,

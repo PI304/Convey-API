@@ -117,8 +117,8 @@ class SurveyPackageListView(generics.ListCreateAPIView):
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
-        operation_summary="하나의 패키지 안에 있는 모든 Parts 를 가져옵니다",
-        responses={200: openapi.Response("ok", PackagePartSerializer(many=True))},
+        operation_summary="설문 패키지의 정보를 전부 가져옵니다",
+        responses={200: openapi.Response("ok", SurveyPackageSerializer)},
     ),
 )
 class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -260,7 +260,7 @@ class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class KickOffSurveyView(APIView):
     def get_routine(self) -> Routine:
-        key = self.request.GET.get("uuid", None)
+        key = self.request.GET.get("key", None)
         code = self.request.GET.get("code", None)
 
         if not (key and code):
@@ -298,6 +298,7 @@ class KickOffSurveyView(APIView):
                 required=True,
             ),
         ],
+        responses={200: openapi.Response("ok", SurveyPackageSerializer)},
     )
     def get(self, request: Request, *args: Any, **kwargs: Any) -> HttpResponseRedirect:
         associated_routine = self.get_routine()
