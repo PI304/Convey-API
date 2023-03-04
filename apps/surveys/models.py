@@ -120,8 +120,11 @@ class QuestionAnswer(TimeStampMixin):
     )
     question = models.ForeignKey(SectorQuestion, on_delete=models.CASCADE, null=False)
     respondent_id = models.CharField(max_length=30, null=False)
-    subject = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    answer = models.CharField(max_length=1000, null=False)
+    workspace = models.ForeignKey(
+        "workspaces.Workspace", on_delete=models.SET_NULL, null=True
+    )
+    answer = models.CharField(max_length=500, null=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         db_table = "question_answer"
