@@ -87,3 +87,29 @@ def test_get_routine_detail_by_id(
 
     assert res.status_code == 200
     assert res.data["time"] == "09:00"
+
+
+@pytest.mark.django_db
+def test_add_survey_packages_to_workspace(
+    client_request, create_workspaces, create_empty_survey_packages
+):
+    url = "/api/workspaces/999/survey-packages/"
+    data = dict(survey_packages=[999, 998])
+    res = client_request("post", url, data)
+
+    print(res.content)
+    assert res.status_code == 201
+    assert len(res.data["survey_packages"]) == 2
+
+
+@pytest.mark.django_db
+def test_remove_survey_package_from_workspace(
+    client_request, create_workspaces, add_survey_packages_to_workspace
+):
+    url = "/api/workspaces/survey-packages/999/"
+    res = client_request("del", url)
+
+    print(res.content)
+
+    assert res.status_code == 200
+    assert len(res.data["survey_packages"]) == 1

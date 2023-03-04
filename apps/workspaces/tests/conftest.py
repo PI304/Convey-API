@@ -4,7 +4,12 @@ import shortuuid
 
 from apps.base_fixtures import *
 from apps.survey_packages.tests.conftest import create_empty_survey_packages
-from apps.workspaces.models import Workspace, Routine, RoutineDetail
+from apps.workspaces.models import (
+    Workspace,
+    Routine,
+    RoutineDetail,
+    WorkspaceComposition,
+)
 
 
 @pytest.fixture(autouse=False, scope="function")
@@ -48,3 +53,9 @@ def sample_routines_data():
         with open(file_path, "r") as file:
             data = json.load(file)
             return data
+
+
+@pytest.fixture(autouse=False, scope="function")
+def add_survey_packages_to_workspace(create_empty_survey_packages):
+    WorkspaceComposition.objects.create(id=999, survey_package_id=999, workspace_id=999)
+    WorkspaceComposition.objects.create(id=998, survey_package_id=998, workspace_id=999)
