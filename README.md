@@ -177,8 +177,9 @@ survey package 큰 단위 순서대로 Parts -> Subjects -> Survey 로 이루어
 
 ```json
 {
-    "title": "기질/환경민감성",
-    "survey": 999
+  "number": 1,
+  "title": "기질/환경민감성",
+  "survey": 999
 }
 ```
 

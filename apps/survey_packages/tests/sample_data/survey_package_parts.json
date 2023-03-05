@@ -7,10 +7,12 @@
         "title": "사회 정서 발달",
         "surveys": [
           {
+            "number": 1,
             "title": "기질/환경민감성",
             "survey": 999
           },
           {
+            "number": 2,
             "title": "사회적 기술",
             "survey": 998
           }
@@ -21,6 +23,7 @@
         "title": "가족",
         "surveys": [
           {
+            "number": 1,
             "title": "가족의 디지털 상호작용",
             "survey": 999
           }
@@ -36,6 +39,7 @@
         "title": "스트레스",
         "surveys": [
           {
+            "number": 1,
             "title": null,
             "survey": 999
           }
@@ -46,6 +50,7 @@
         "title": "수면",
         "surveys": [
           {
+            "number": 1,
             "title": null,
             "survey": 999
           }
