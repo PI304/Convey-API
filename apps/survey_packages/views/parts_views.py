@@ -28,8 +28,8 @@ class PackagePartListView(generics.ListCreateAPIView):
     queryset = PackagePart.objects.all()
 
     @swagger_auto_schema(
-        operation_summary="설문 패키지 하위에 하나의 대주제 (디바이더) 를 생성합니다",
-        operation_description="대주제 하위의 소주제까지 함께 구성합니다",
+        operation_summary="설문 패키지 하위에 하나의 디바이더를 생성합니다",
+        operation_description="디바이더 하위의 대주제까지 함께 구성합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -47,7 +47,7 @@ class PackagePartListView(generics.ListCreateAPIView):
                                 description="문항 번호",
                             ),
                             "title": openapi.Schema(
-                                type=openapi.TYPE_STRING, description="소주제 제목"
+                                type=openapi.TYPE_STRING, description="대주제 제목"
                             ),
                         },
                     ),
