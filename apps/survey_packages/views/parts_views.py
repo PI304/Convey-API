@@ -68,7 +68,6 @@ class PackagePartListView(generics.ListCreateAPIView):
 
         part = service.create_part(request.data, package.id)
 
-        part.refresh_from_db()
         serializer = self.get_serializer(part)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
