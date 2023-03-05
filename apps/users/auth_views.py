@@ -98,7 +98,6 @@ class BasicSignInView(APIView):
                 type=openapi.TYPE_OBJECT,
                 properties={
                     "access_token": openapi.Schema(type=openapi.TYPE_STRING),
-                    "refresh_token": openapi.Schema(type=openapi.TYPE_STRING),
                 },
             ),
         },
@@ -121,7 +120,6 @@ class BasicSignInView(APIView):
 
         data = serializer.data
         data["access_token"] = access_token
-        data["refresh_token"] = refresh_token
 
         res = Response(
             data,
