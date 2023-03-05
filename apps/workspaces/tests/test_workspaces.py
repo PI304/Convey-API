@@ -120,8 +120,6 @@ def test_remove_survey_package_from_workspace(
 def test_get_kick_off_survey_package(
     client_request,
     create_empty_survey_packages,
-    create_empty_survey,
-    create_sectors,
     compose_empty_survey_package,
     create_workspaces,
     create_workspace_routine,
