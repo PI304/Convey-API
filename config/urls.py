@@ -25,9 +25,9 @@ def health_check_view(request: Request) -> HttpResponse:
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin", admin.site.urls),
     path(
-        "health-check/",
+        "health-check",
         health_check_view,
     ),
     re_path(r"^api/", include("config.urls_v1")),

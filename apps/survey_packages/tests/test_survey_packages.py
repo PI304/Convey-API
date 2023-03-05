@@ -6,7 +6,7 @@ from apps.surveys.models import Survey
 
 @pytest.mark.django_db
 def test_create_empty_survey_package(client_request, sample_package_base_data):
-    url = "/api/survey-packages/"
+    url = "/api/survey-packages"
     data = sample_package_base_data
     res = client_request("post", url, data)
 
@@ -16,7 +16,7 @@ def test_create_empty_survey_package(client_request, sample_package_base_data):
 
 @pytest.mark.django_db
 def test_update_empty_package(client_request, create_empty_survey_packages):
-    url = "/api/survey-packages/999/"
+    url = "/api/survey-packages/999"
     data = dict(
         description="updated description",
         contacts=[dict(type="email", content="updated@email.com")],
@@ -35,7 +35,7 @@ def test_get_survey_package_by_id(
     create_empty_survey_packages,
     compose_empty_survey_package,
 ):
-    url = "/api/survey-packages/999/"
+    url = "/api/survey-packages/999"
     res = client_request("get", url)
 
     assert res.status_code == 200
@@ -48,7 +48,7 @@ def test_get_survey_package_by_id(
 def test_get_all_survey_packages(
     client_request, create_empty_survey, create_empty_survey_packages
 ):
-    url = "/api/survey-packages/"
+    url = "/api/survey-packages"
     res = client_request("get", url)
 
     assert res.status_code == 200
@@ -61,7 +61,7 @@ def test_delete_survey_package(
     create_empty_survey_packages,
     compose_empty_survey_package,
 ):
-    url = "/api/survey-packages/999/"
+    url = "/api/survey-packages/999"
     res = client_request("del", url)
 
     remaining_surveys = Survey.objects.all().count()
