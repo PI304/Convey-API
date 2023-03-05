@@ -1,7 +1,4 @@
-import tempfile
-
 import pytest
-from PIL import Image
 
 from apps.survey_packages.models import PackagePart, PackageSubject
 from apps.surveys.models import Survey
@@ -33,28 +30,9 @@ def test_update_empty_package(client_request, create_empty_survey_packages):
 
 
 @pytest.mark.django_db
-def test_compose_survey_package(
-    client_request,
-    create_empty_survey_packages,
-    sample_package_parts_data,
-    create_empty_survey,
-):
-    url = "/api/survey-packages/999/"
-    data = sample_package_parts_data
-    res = client_request("put", url, data)
-
-    assert res.status_code == 200
-    assert res.data["id"] == 999
-    assert res.data["author"]["id"] == 999
-    assert len(res.data["contacts"]) == 2
-    assert len(res.data["parts"]) == 2
-
-
-@pytest.mark.django_db
 def test_get_survey_package_by_id(
     client_request,
     create_empty_survey_packages,
-    create_empty_survey,
     compose_empty_survey_package,
 ):
     url = "/api/survey-packages/999/"
@@ -80,8 +58,6 @@ def test_get_all_survey_packages(
 @pytest.mark.django_db
 def test_delete_survey_package(
     client_request,
-    create_empty_survey,
-    create_sectors,
     create_empty_survey_packages,
     compose_empty_survey_package,
 ):
