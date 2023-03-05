@@ -32,26 +32,26 @@ def hello_world(request: Request) -> Response:
 
 urlpatterns: List[URLResolver] = [
     path("", hello_world),
-    path("auth/", include("apps.users.auth_urls")),
+    path("auth", include("apps.users.auth_urls")),
     # path("users/", include("apps.users.urls")),
-    path("workspaces/", include("apps.workspaces.urls")),
-    path("surveys/", include("apps.surveys.urls")),
-    path("survey-packages/", include("apps.survey_packages.urls")),
+    path("workspaces", include("apps.workspaces.urls")),
+    path("surveys", include("apps.surveys.urls")),
+    path("survey-packages", include("apps.survey_packages.urls")),
 ]
 
 urlpatterns += [
     re_path(
-        r"^swagger(?P<format>\.json|\.yaml)/$",
+        r"^swagger(?P<format>\.json|\.yaml)/?$",
         SchemaView.without_ui(cache_timeout=0),
         name="schema-json",
     ),
     re_path(
-        r"^swagger/$",
+        r"^swagger/?$",
         SchemaView.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
     re_path(
-        r"^redoc/$",
+        r"^redoc/?$",
         SchemaView.with_ui("redoc", cache_timeout=0),
         name="schema-redoc-ui",
     ),

@@ -2,39 +2,39 @@ from django.urls import path
 from . import auth_views
 
 urlpatterns = [
-    path("signup/admin/", auth_views.BasicSignUpView.as_view(), name="basic_signup"),
-    path("signup/app/", auth_views.AppSignUpView.as_view(), name="app_signup"),
+    path("/signup/admin", auth_views.BasicSignUpView.as_view(), name="basic_signup"),
+    path("/signup/app", auth_views.AppSignUpView.as_view(), name="app_signup"),
     path(
-        "login/admin/", auth_views.BasicSignInView.as_view(), name="basic_admin_login"
+        "/login/admin", auth_views.BasicSignInView.as_view(), name="basic_admin_login"
     ),
-    path("login/app/", auth_views.AppSignInView.as_view(), name="app_login"),
-    path("leave/", auth_views.SecessionView.as_view(), name="basic_leave"),
+    path("/login/app", auth_views.AppSignInView.as_view(), name="app_login"),
+    path("/leave", auth_views.SecessionView.as_view(), name="basic_leave"),
 ]
 
 urlpatterns += [
-    path("token/refresh/", auth_views.TokenRefreshView.as_view(), name="token_refresh"),
+    path("/token/refresh", auth_views.TokenRefreshView.as_view(), name="token_refresh"),
 ]
 
 urlpatterns += [
     path(
-        "check_email/",
+        "/check_email",
         auth_views.CheckDuplicateUsernameView.as_view(),
         name="check_email",
     ),
     path(
-        "email_verification/",
+        "/email_verification",
         auth_views.EmailVerification.as_view(),
         name="verify_email",
     ),
     path(
-        "email_confirmation/", auth_views.EmailConfirmation.as_view(), name="activate"
+        "/email_confirmation", auth_views.EmailConfirmation.as_view(), name="activate"
     ),
     path(
-        "password_change/",
+        "/password_change",
         auth_views.PasswordChangeView.as_view(),
         name="password_change",
     ),
     path(
-        "password_reset/", auth_views.PasswordResetView.as_view(), name="password_reset"
+        "/password_reset", auth_views.PasswordResetView.as_view(), name="password_reset"
     ),
 ]

@@ -11,19 +11,19 @@ from apps.workspaces.views import (
 
 urlpatterns: list[URLPattern] = [
     path("", WorkspaceListView.as_view(), name="workspace_list"),
-    path("<int:pk>/", WorkspaceDetailView.as_view(), name="workspace_details"),
-    path("<int:pk>/routines/", RoutineView.as_view(), name="routine"),
+    path("/<int:pk>", WorkspaceDetailView.as_view(), name="workspace_details"),
+    path("/<int:pk>/routines", RoutineView.as_view(), name="routine"),
     path(
-        "<int:pk>/survey-packages/",
+        "/<int:pk>/survey-packages",
         WorkspaceAddSurveyPackageView.as_view(),
         name="survey_addition",
     ),
-    path("routine-details/", RoutineDetailCreateView.as_view(), name="routine_details"),
+    path("/routine-details", RoutineDetailCreateView.as_view(), name="routine_details"),
     path(
-        "routine-details/<int:pk>/", RoutineDetailView.as_view(), name="routine_details"
+        "/routine-details/<int:pk>", RoutineDetailView.as_view(), name="routine_details"
     ),
     path(
-        "survey-packages/<int:pk>/",
+        "/survey-packages/<int:pk>",
         WorkspaceDestroySurveyPackageView.as_view(),
         name="survey_removal",
     ),
