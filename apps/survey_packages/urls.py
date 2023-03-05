@@ -23,7 +23,7 @@ urlpatterns: list[URLPattern] = [
     path("kick-off/", base_views.KickOffSurveyView.as_view(), name="kickoff_survey"),
     path(
         "<int:pk>/parts/",
-        parts_views.PackagePartCreateView.as_view(),
+        parts_views.PackagePartListView.as_view(),
         name="package_part_create",
     ),
     path(
@@ -32,12 +32,12 @@ urlpatterns: list[URLPattern] = [
         name="package_part_create",
     ),
     path(
-        "subjects/<int:pk>/",
-        subjects_views.PackageSubjectCreateView.as_view(),
+        "parts/<int:pk>/subjects/",
+        subjects_views.PackageSubjectListView.as_view(),
         name="package_part_create",
     ),
     path(
-        "subjects/<int:pk>/",
+        "parts/subjects/<int:pk>/",
         subjects_views.PackageSubjectDetailView.as_view(),
         name="package_part_create",
     ),
