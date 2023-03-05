@@ -130,7 +130,6 @@ class BasicSignInView(APIView):
             settings.SIMPLE_JWT["AUTH_COOKIE"],
             refresh_token,
             max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
-            secure=True,
         )  # 7 days
         return res
 
@@ -349,7 +348,6 @@ class TokenRefreshView(APIView):
     Refresh tokens and returns a new pair.
     """
 
-    authentication_classes = [RefreshTokenAuthentication]
     permission_classes = [AllowAny]
     renderer_classes = [CustomRenderer]
 
@@ -370,6 +368,7 @@ class TokenRefreshView(APIView):
     )
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE"]) or None
+        print(request.META.get("HTTP_COOKIE"))
         access_token = request.META.get("HTTP_AUTHORIZATION") or None
 
         # authenticate() verifies and decode the token
@@ -459,7 +458,6 @@ class AppSignInView(APIView):
             settings.SIMPLE_JWT["AUTH_COOKIE"],
             refresh_token,
             max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
-            secure=True,
         )  # 7 days
         return res
 
