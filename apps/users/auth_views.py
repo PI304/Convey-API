@@ -93,6 +93,13 @@ class BasicSignInView(APIView):
 
     @swagger_auto_schema(
         operation_summary="어드민 유저 웹사이트 로그인",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "email": openapi.Schema(type=openapi.FORMAT_EMAIL),
+                "password": openapi.Schema(type=openapi.FORMAT_PASSWORD),
+            },
+        ),
         responses={
             200: openapi.Schema(
                 type=openapi.TYPE_OBJECT,
