@@ -103,7 +103,6 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_HTTPONLY = True
 # SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_DOMAIN = "http://localhost:3000"
 
 # Auth
 AUTH_USER_MODEL = "users.User"
