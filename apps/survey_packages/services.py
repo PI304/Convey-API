@@ -3,7 +3,7 @@ from typing import Union, List
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
-from apps.survey_packages.models import SurveyPackage, PackagePart
+from apps.survey_packages.models import SurveyPackage, PackagePart, PackageSubjectSurvey
 from apps.survey_packages.serializers import (
     PackageContactSerializer,
     PackagePartSerializer,
@@ -55,25 +55,23 @@ class SurveyPackageService(object):
             raise ValidationError("a part should have a title")
         self._create_subjects(part_data["subjects"], part.id)
 
+        part.refresh_from_db()
+
         return part
 
     def _create_subjects(self, subjects_list: list[dict], part_id: int):
         for subject in subjects_list:
-            self._create_subject(subject, part_id)
+            serializer = PackageSubjectSerializer(data=subject)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(package_part_id=part_id)
 
-    def _create_subject(self, subject_data: dict, part_id: int):
-        serializer = PackageSubjectSerializer(data=subject_data)
-        if serializer.is_valid(raise_exception=True):
-            subject = serializer.save(package_part_id=part_id)
-
-        self.associate_subject_with_surveys(
-            subject.id, subject_data.get("surveys", None)
-        )
-
-    def associate_subject_with_surveys(self, subject_id: int, data: list[dict]) -> None:
+    @staticmethod
+    def associate_subject_with_surveys(subject_id: int, data: list[dict]) -> None:
         for ss in data:
-            serializer = PackageSubjectSurveySerializer(
-                data=dict(title=ss.get("title", None))
-            )
+            serializer = PackageSubjectSurveySerializer(data=ss)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(subject_id=subject_id, survey_id=ss.get("survey", None))
+
+    @staticmethod
+    def delete_related_surveys(subject_id: int) -> None:
+        PackageSubjectSurvey.objects.filter(subject_id=subject_id).delete()
