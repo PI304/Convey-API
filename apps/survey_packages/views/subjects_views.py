@@ -44,7 +44,7 @@ class PackageSubjectListView(generics.ListCreateAPIView):
         return self.queryset.filter(package_part_id=self.kwargs.get("pk"))
 
     @swagger_auto_schema(
-        operation_summary="설문 패키지의, 대주제 (디바이더) 하위의 소주제를 추가합니다",
+        operation_summary="설문 패키지의, 디바이더 하위의 대주제를 추가합니다",
         manual_parameters=[
             openapi.Parameter(
                 "id", openapi.IN_PATH, description="part id", type=openapi.TYPE_INTEGER
@@ -57,7 +57,7 @@ class PackageSubjectListView(generics.ListCreateAPIView):
                     type=openapi.TYPE_INTEGER,
                     description="문항 번호",
                 ),
-                "title": openapi.Schema(type=openapi.TYPE_STRING, description="소주제 제목"),
+                "title": openapi.Schema(type=openapi.TYPE_STRING, description="대주제 제목"),
             },
         ),
         responses={
@@ -120,16 +120,19 @@ class PackageSubjectDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
     @swagger_auto_schema(
-        operation_summary="설문 패키지의, 대주제 (디바이더) 의, 소주제에 포함될 설문을 구성합니다",
+        operation_summary="설문 패키지의, 디바이더 하위의, 대주제에 포함될 소주제를 구성합니다",
         operation_description="기존의 구성이 있다면 덮어씁니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_ARRAY,
             items=openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
+                    "number": openapi.Schema(
+                        type=openapi.TYPE_INTEGER, description="소주제 문항 번호"
+                    ),
                     "title": openapi.Schema(
                         type=openapi.TYPE_STRING,
-                        description="설문 제목, 설문 생성 시 지정했던 제목을 사용해도 되며, null 로 설정 시 별도의 설문 제목을 포함하지 않습니다",
+                        description="소주제 제목, 설문 생성 시 지정했던 설문 제목을 사용해도 되며, null 로 설정 시 별도의 설문 제목을 포함하지 않습니다",
                     ),
                     "survey": openapi.Schema(
                         type=openapi.TYPE_INTEGER, description="survey id"
