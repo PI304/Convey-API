@@ -17,24 +17,24 @@ urlpatterns += [
 
 urlpatterns += [
     path(
-        "/check_email",
+        "/check-email",
         auth_views.CheckDuplicateUsernameView.as_view(),
         name="check_email",
     ),
     path(
-        "/email_verification",
+        "/email-verification",
         auth_views.EmailVerification.as_view(),
         name="verify_email",
     ),
     path(
-        "/email_confirmation", auth_views.EmailConfirmation.as_view(), name="activate"
+        "/email-confirmation", auth_views.EmailConfirmation.as_view(), name="activate"
     ),
     path(
-        "/password_change",
+        "/password-change",
         auth_views.PasswordChangeView.as_view(),
         name="password_change",
     ),
     path(
-        "/password_reset", auth_views.PasswordResetView.as_view(), name="password_reset"
+        "/password-reset", auth_views.PasswordResetView.as_view(), name="password_reset"
     ),
 ]
