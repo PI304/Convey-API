@@ -122,78 +122,10 @@ class SurveyPackageListView(generics.ListCreateAPIView):
     ),
 )
 class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
-    allowed_methods = ["PUT", "DELETE", "GET", "PATCH"]
+    allowed_methods = ["DELETE", "GET", "PATCH"]
     queryset = SurveyPackage.objects.all()
     serializer_class = SurveyPackageSerializer
     # permission_classes = [IsAuthorOrReadOnly]
-
-    @swagger_auto_schema(
-        operation_summary="빈 설문 패키지를 구성합니다. 기존의 설문 패키지가 있는 경우, 전부 삭제되고 새로운 데이터로 대체됩니다",
-        operation_description="설문 패키지 하위에는 Parts -> Subjects -> Surveys 가 존재합니다. 설문 패키지를 생성할 때에는 Parts 를 하나의 요소로 하여 리스트를 전달합니다.",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_ARRAY,
-            items=openapi.Schema(
-                type=openapi.TYPE_OBJECT,
-                required=["title", "subjects"],
-                properties={
-                    "title": openapi.Schema(
-                        type=openapi.TYPE_STRING,
-                        description="PART (디바이더) 의 이름",
-                    ),
-                    "subjects": openapi.Schema(
-                        type=openapi.TYPE_ARRAY,
-                        description="디바이더 (PART) 아래 주제",
-                        items=openapi.Schema(
-                            type=openapi.TYPE_OBJECT,
-                            required=["number", "title", "surveys"],
-                            properties={
-                                "number": openapi.Schema(
-                                    type=openapi.TYPE_INTEGER, description="주제 제목"
-                                ),
-                                "title": openapi.Schema(
-                                    type=openapi.TYPE_STRING,
-                                    description="디바이더 아래의 주제 이름",
-                                ),
-                                "surveys": openapi.Schema(
-                                    type=openapi.TYPE_ARRAY,
-                                    description="주제 아래 연결할 survey 들",
-                                    items=openapi.Schema(
-                                        type=openapi.TYPE_OBJECT,
-                                        required=["survey"],
-                                        properties={
-                                            "title": openapi.Schema(
-                                                type=openapi.TYPE_STRING,
-                                                description="연결한 설문의 제목, 설문을 만들 때 만든 제목을 그대로 보내도 되며 아예 설정하지 않을 수도 있습니다",
-                                            ),
-                                            "survey": openapi.Schema(
-                                                type=openapi.TYPE_INTEGER,
-                                                description="survey id",
-                                            ),
-                                        },
-                                    ),
-                                ),
-                            },
-                        ),
-                    ),
-                },
-            ),
-        ),
-        responses={
-            200: openapi.Response("updated", SurveyPackageSerializer),
-        },
-    )
-    def put(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        package = self.get_object()
-
-        service = SurveyPackageService(package)
-        service.delete_related_components()
-
-        parts = service.create_parts(request.data, package.id)
-
-        package.refresh_from_db()
-        serializer = self.get_serializer(package)
-
-        return Response(serializer.data)
 
     @swagger_auto_schema(
         operation_summary="설문 패키지 기본 정보를 수정합니다",
