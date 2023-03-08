@@ -4,6 +4,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
+from apps.survey_packages.serializers import RespondentSerializer
 from apps.surveys.models import (
     Survey,
     SurveySector,
@@ -132,4 +133,11 @@ class QuestionAnswerService(object):
                 question_id=question_id,
                 workspace_id=self.workspace_id,
                 user_id=self.user.id,
+            )
+
+    def record_respondent(self):
+        serializer = RespondentSerializer(data=dict(respondent_id=self.respondent_id))
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(
+                survey_package_id=self.package_id, workspace_id=self.workspace_id
             )
