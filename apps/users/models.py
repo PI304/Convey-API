@@ -66,7 +66,7 @@ class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
     social_provider = models.CharField(
         max_length=15, null=True, choices=SocialProviderType.choices
     )
-
+    privacy_policy_agreed = models.BooleanField(null=False)
     is_staff = models.BooleanField(
         default=False,
     )
