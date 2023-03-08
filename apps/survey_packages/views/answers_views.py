@@ -1,7 +1,9 @@
 from typing import Any
 
+from django.db.models import QuerySet, Prefetch
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
@@ -12,8 +14,14 @@ from rest_framework.response import Response
 from apps.surveys.models import QuestionAnswer
 from apps.surveys.serializers import QuestionAnswerSerializer
 from apps.surveys.services import QuestionAnswerService
-from apps.workspaces.models import Workspace
+from apps.workspaces.models import (
+    Workspace,
+    WorkspaceComposition,
+    RoutineDetail,
+)
+from apps.workspaces.serializers import WorkspaceCompositionSerializer
 from config.exceptions import InstanceNotFound
+from config.permissions import AdminOnly
 
 
 class SurveyPackageAnswerCreateView(generics.CreateAPIView):
@@ -70,7 +78,68 @@ class SurveyPackageAnswerCreateView(generics.CreateAPIView):
         )
 
         answers = service.create_answers(request.data)
+        service.record_respondent()
 
         serializer = self.get_serializer(answers, many=True)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class SurveyPackageAnswerDownloadView(generics.RetrieveAPIView):
+    permission_classes = [AdminOnly]
+    serializer_class = WorkspaceCompositionSerializer
+    queryset = WorkspaceComposition.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["workspace_id"]
+
+    def get_queryset(self) -> QuerySet:
+        survey_package_id = self.kwargs.get("pk")
+        workspace_id = self.request.GET.get("workspace_id")
+        print(survey_package_id, workspace_id)
+
+        try:
+            workspace_composition = get_object_or_404(
+                WorkspaceComposition,
+                survey_package_id=survey_package_id,
+                workspace_id=workspace_id,
+            )
+        except Http404:
+            raise InstanceNotFound(
+                "survey package does not exist in the provided workspace"
+            )
+        return self.queryset.filter(
+            survey_package_id=survey_package_id, workspace_id=workspace_id
+        ).select_related("survey_package", "workspace")
+
+    @swagger_auto_schema(
+        operation_summary="survey package 의 응답을 엑셀 파일 형태로 다운로드 합니다",
+        tags=["survey-answer"],
+        manual_parameters=[
+            openapi.Parameter(
+                "id",
+                openapi.IN_PATH,
+                description="survey package id",
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                "workspaceId",
+                openapi.IN_QUERY,
+                description="다운로드하고자 하는 survey package 가 속해있는 workspace id",
+                type=openapi.TYPE_INTEGER,
+            ),
+        ],
+    )
+    def get(self, request, *args, **kwargs) -> Response:
+        instance: WorkspaceComposition = self.get_object()
+
+        routine_id = instance.workspace.routine.id
+        routine_detail: RoutineDetail = RoutineDetail.objects.filter(
+            routine_id=routine_id, survey_package_id=instance.id
+        ).first()
+
+        workspace_name: str = instance.workspace.name
+        package_name = instance.survey_package.title
+        nth_day = routine_detail.nth_day
+        time = routine_detail.time
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

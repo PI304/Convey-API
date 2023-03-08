@@ -20,6 +20,11 @@ urlpatterns: list[URLPattern] = [
         answers_views.SurveyPackageAnswerCreateView.as_view(),
         name="survey_package_answers_list",
     ),
+    path(
+        "/<int:pk>/responses/download",
+        answers_views.SurveyPackageAnswerDownloadView.as_view(),
+        name="survey_package_answers_download",
+    ),
     path("/kick-off", base_views.KickOffSurveyView.as_view(), name="kickoff_survey"),
     path(
         "/<int:pk>/parts",
