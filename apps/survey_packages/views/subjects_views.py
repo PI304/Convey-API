@@ -126,9 +126,11 @@ class PackageSubjectDetailView(generics.RetrieveUpdateDestroyAPIView):
             type=openapi.TYPE_ARRAY,
             items=openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=["survey"],
                 properties={
                     "number": openapi.Schema(
-                        type=openapi.TYPE_INTEGER, description="소주제 문항 번호"
+                        type=openapi.TYPE_INTEGER,
+                        description="소주제 문항 번호, 제목이 Null 이라면 문항번호는 쓰이지 않습니다",
                     ),
                     "title": openapi.Schema(
                         type=openapi.TYPE_STRING,
