@@ -165,7 +165,8 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
                             type=openapi.TYPE_OBJECT,
                             properties={
                                 "number": openapi.Schema(
-                                    type=openapi.TYPE_INTEGER, description="문항 번호"
+                                    type=openapi.TYPE_NUMBER,
+                                    description="문항 번호, 4-1, 4-2 와 같이 소문항이 있다면 소수점으로 입력합니다",
                                 ),
                                 "content": openapi.Schema(
                                     type=openapi.TYPE_STRING, description="실제 문항 내용"

@@ -123,12 +123,10 @@ class SurveyPackageAnswerCreateView(generics.CreateAPIView):
 
 class SurveyPackageAnswerDownloadView(APIView):
     permission_classes = [AdminOnly]
-    serializer_class = WorkspaceCompositionSerializer
-    queryset = WorkspaceComposition.objects.all()
 
-    def get_queryset(self) -> QuerySet:
-        survey_package_id = self.kwargs.get("pk")
-        workspace_query: str = self.request.GET.get("workspace")
+    def get_object(self, pk):
+        survey_package_id = pk
+        workspace_query: str = self.request.GET.get("workspace", None)
 
         if workspace_query is None:
             raise ValidationError("workspace id not set in query string")
@@ -148,12 +146,11 @@ class SurveyPackageAnswerDownloadView(APIView):
             raise InstanceNotFound(
                 "survey package does not exist in the provided workspace"
             )
-        return self.queryset.filter(
+        queryset = WorkspaceComposition.objects.filter(
             survey_package_id=survey_package_id, workspace_id=workspace_id
         ).select_related("survey_package", "workspace")
 
-    def get_object(self):
-        return self.get_queryset().first()
+        return queryset.first()
 
     @swagger_auto_schema(
         operation_summary="survey package 의 응답을 엑셀 파일 형태로 다운로드 합니다",
@@ -170,12 +167,13 @@ class SurveyPackageAnswerDownloadView(APIView):
                 "workspace",
                 openapi.IN_QUERY,
                 description="다운로드하고자 하는 survey package 가 속해있는 workspace id",
-                type=openapi.TYPE_INTEGER,
+                type=openapi.TYPE_STRING,
+                required=True,
             ),
         ],
     )
-    def get(self, request, *args, **kwargs) -> Response:
-        instance: WorkspaceComposition = self.get_object()
+    def get(self, request, pk, format=None) -> Response:
+        instance: WorkspaceComposition = self.get_object(pk)
 
         routine_id = instance.workspace.routine.id
         routine_detail: RoutineDetail = RoutineDetail.objects.filter(
