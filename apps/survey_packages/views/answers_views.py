@@ -1,9 +1,8 @@
 from typing import Any
 
-from django.db.models import QuerySet, Prefetch
+from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
@@ -25,7 +24,7 @@ from apps.workspaces.serializers import (
     WorkspaceCompositionSerializer,
     RoutineSerializer,
 )
-from config.exceptions import InstanceNotFound, UnprocessableException
+from config.exceptions import InstanceNotFound
 from config.permissions import AdminOnly
 
 
