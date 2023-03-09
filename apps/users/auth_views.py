@@ -351,15 +351,12 @@ class EmailConfirmation(APIView):
 
 
 class TokenRefreshView(APIView):
-    """
-    Refresh tokens and returns a new pair.
-    """
-
     permission_classes = [AllowAny]
     renderer_classes = [CustomRenderer]
 
     @swagger_auto_schema(
         operation_summary="Refresh token",
+        operation_description="refresh token 을 쿠키에 저장합니다. 유효기간은 7일 입니다",
         manual_parameters=[
             openapi.Parameter(
                 "Authentication",
@@ -369,7 +366,14 @@ class TokenRefreshView(APIView):
             )
         ],
         responses={
-            201: openapi.Response("Pair of new tokens", TokenRefreshSerializer),
+            201: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "access_token": openapi.Schema(
+                        type=openapi.TYPE_STRING, description="새로운 액세스 토큰"
+                    )
+                },
+            ),
             401: "Authentication Failed",
         },
     )
@@ -431,7 +435,6 @@ class AppSignInView(APIView):
                 type=openapi.TYPE_OBJECT,
                 properties={
                     "access_token": openapi.Schema(type=openapi.TYPE_STRING),
-                    "refresh_token": openapi.Schema(type=openapi.TYPE_STRING),
                 },
             ),
         },

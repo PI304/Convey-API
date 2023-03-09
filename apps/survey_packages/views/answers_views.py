@@ -130,6 +130,9 @@ class SurveyPackageAnswerDownloadView(APIView):
         survey_package_id = self.kwargs.get("pk")
         workspace_query: str = self.request.GET.get("workspace")
 
+        if workspace_query is None:
+            raise ValidationError("workspace id not set in query string")
+
         if not workspace_query.isnumeric():
             raise ValidationError("workspace must be in number format")
 
@@ -161,6 +164,7 @@ class SurveyPackageAnswerDownloadView(APIView):
                 openapi.IN_PATH,
                 description="survey package id",
                 type=openapi.TYPE_INTEGER,
+                required=True,
             ),
             openapi.Parameter(
                 "workspace",
