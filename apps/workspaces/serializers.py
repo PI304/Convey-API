@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from apps.survey_packages.serializers import SurveyPackageSerializer
 from apps.workspaces.models import (
     Workspace,
     Routine,
@@ -107,6 +108,9 @@ class RoutineSerializer(serializers.ModelSerializer):
 
 
 class WorkspaceCompositionSerializer(serializers.ModelSerializer):
+    workspace = WorkspaceSerializer(read_only=True)
+    survey_package = SurveyPackageSerializer(read_only=True)
+
     class Meta:
         model = WorkspaceComposition
         fields = ["id", "survey_package", "workspace", "created_at", "updated_at"]

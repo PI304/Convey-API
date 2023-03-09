@@ -1,12 +1,12 @@
 from typing import Any
 
-from django.db.models import QuerySet, Prefetch
-from django.http import Http404, HttpResponseRedirect
+from django.db.models import QuerySet
+from django.http import Http404
 from datetime import datetime
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, status, permissions, mixins
+from rest_framework import generics, status, permissions
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -14,20 +14,16 @@ from rest_framework.views import APIView
 
 from apps.survey_packages.models import (
     SurveyPackage,
-    PackagePart,
-    PackageSubject,
-    PackageSubjectSurvey,
     PackageContact,
 )
 from apps.survey_packages.serializers import (
     SurveyPackageSerializer,
-    PackagePartSerializer,
     SimpleSurveyPackageSerializer,
 )
 from apps.survey_packages.services import SurveyPackageService
 from apps.workspaces.models import Routine, Workspace
 from config.exceptions import InstanceNotFound, UnprocessableException
-from config.permissions import AdminOnly, IsAuthorOrReadOnly
+from config.permissions import AdminOnly
 
 
 @method_decorator(
@@ -39,7 +35,7 @@ from config.permissions import AdminOnly, IsAuthorOrReadOnly
 class SurveyPackageListView(generics.ListCreateAPIView):
     serializer_class = SimpleSurveyPackageSerializer
     queryset = SurveyPackage.objects.all()
-    # permission_classes = [permissions.IsAuthenticated, AdminOnly]
+    permission_classes = [permissions.IsAuthenticated, AdminOnly]
 
     def get_queryset(self) -> QuerySet:
         return self.queryset.filter(author_id=self.request.user.id)

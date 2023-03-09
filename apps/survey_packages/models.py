@@ -27,21 +27,21 @@ class SurveyPackage(TimeStampMixin):
         return f"SurveyPackage({self.id}, {self.title})"
 
 
-class PackageComposition(TimeStampMixin):
-    id = models.BigAutoField(primary_key=True)
-    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
-    survey_package = models.ForeignKey(SurveyPackage, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "package_composition"
-
-    def __str__(self):
-        return f"[{self.id}] survey: {self.survey_id}/package: {self.survey_package_id}"
-
-    def __repr__(self):
-        return (
-            f"PackageComposition({self.id}, {self.survey_id}-{self.survey_package_id})"
-        )
+# class PackageComposition(TimeStampMixin):
+#     id = models.BigAutoField(primary_key=True)
+#     survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+#     survey_package = models.ForeignKey(SurveyPackage, on_delete=models.CASCADE)
+#
+#     class Meta:
+#         db_table = "package_composition"
+#
+#     def __str__(self):
+#         return f"[{self.id}] survey: {self.survey_id}/package: {self.survey_package_id}"
+#
+#     def __repr__(self):
+#         return (
+#             f"PackageComposition({self.id}, {self.survey_id}-{self.survey_package_id})"
+#         )
 
 
 class PackageContact(TimeStampMixin):
@@ -120,3 +120,21 @@ class PackageSubjectSurvey(TimeStampMixin):
 
     def __repr__(self):
         return f"PackageSubjectSurvey({self.id}, ({self.subject}, {self.survey}))"
+
+
+class Respondent(TimeStampMixin):
+    id = models.BigAutoField(primary_key=True)
+    respondent_id = models.CharField(max_length=30)
+    survey_package = models.ForeignKey(
+        "survey_packages.SurveyPackage", on_delete=models.DO_NOTHING
+    )
+    workspace = models.ForeignKey("workspaces.Workspace", on_delete=models.DO_NOTHING)
+
+    class Meta:
+        db_table = "respondent"
+
+    def __str__(self):
+        return f"[{self.id}] {self.respondent_id}/package: {self.survey_package_id}"
+
+    def __repr__(self):
+        return f"Respondent({self.id}, {self.respondent_id}, {self.survey_package_id})"

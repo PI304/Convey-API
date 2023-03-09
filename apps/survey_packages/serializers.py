@@ -7,6 +7,7 @@ from apps.survey_packages.models import (
     PackagePart,
     PackageSubject,
     PackageSubjectSurvey,
+    Respondent,
 )
 from apps.surveys.serializers import SurveySerializer
 from apps.users.serializers import UserSerializer
@@ -118,3 +119,10 @@ class SurveyPackageSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+class RespondentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Respondent
+        fields = "__all__"
+        read_only_fields = ["id", "survey_package", "created_at", "updated_at"]

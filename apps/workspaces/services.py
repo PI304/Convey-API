@@ -10,6 +10,7 @@ from apps.workspaces.serializers import (
     RoutineDetailSerializer,
     WorkspaceCompositionSerializer,
 )
+from config.exceptions import InstanceNotFound
 
 
 class RoutineService(object):
@@ -26,6 +27,17 @@ class RoutineService(object):
                 raise ValidationError(
                     "survey package id should be provided for all routine details"
                 )
+            try:
+                in_workspace = get_object_or_404(
+                    WorkspaceComposition,
+                    survey_package_id=survey_package_id,
+                    workspace_id=self.routine.workspace_id,
+                )
+            except Http404:
+                raise InstanceNotFound(
+                    f"survey package with the id {survey_package_id} does not exist or is not included in workspace"
+                )
+
             del r["survey_package"]
             s = RoutineDetailSerializer(data=r)
             if s.is_valid(raise_exception=True):

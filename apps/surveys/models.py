@@ -93,26 +93,6 @@ class QuestionChoice(TimeStampMixin):
         return f"QuestionChoice({self.id}, {self.number})"
 
 
-# class ChoicesSet(TimeStampMixin):
-#     id = models.BigAutoField(primary_key=True)
-#     sector = models.ForeignKey(SurveySector, null=True, on_delete=models.CASCADE, related_name="common_choices")
-#     question = models.ForeignKey(
-#         SectorQuestion, null=True, related_name="choices_set", on_delete=models.CASCADE
-#     )
-#     choice = models.ForeignKey(
-#         QuestionChoice, null=False, on_delete=models.CASCADE, related_name="questions"
-#     )
-#
-#     class Meta:
-#         db_table = "choices_set"
-#
-#     def __str__(self):
-#         return f"[{self.id}] {self.question_id} {self.choice_id}"
-#
-#     def __repr__(self):
-#         return f"ChoicesSet({self.id}, {self.question_id}, {self.choice_id})"
-
-
 class QuestionAnswer(TimeStampMixin):
     id = models.BigAutoField(primary_key=True)
     survey_package = models.ForeignKey(
@@ -134,20 +114,3 @@ class QuestionAnswer(TimeStampMixin):
 
     def __repr__(self):
         return f"QuestionAnswer({self.id}, {self.respondent_id})"
-
-
-class Respondent(TimeStampMixin):
-    id = models.BigAutoField(primary_key=True)
-    respondent_id = models.CharField(max_length=30)
-    survey_package = models.ForeignKey(
-        "survey_packages.SurveyPackage", on_delete=models.DO_NOTHING
-    )
-
-    class Meta:
-        db_table = "respondent"
-
-    def __str__(self):
-        return f"[{self.id}] {self.respondent_id}/package: {self.survey_package_id}"
-
-    def __repr__(self):
-        return f"Respondent({self.id}, {self.respondent_id}, {self.survey_package_id})"
