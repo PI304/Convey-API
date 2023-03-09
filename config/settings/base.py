@@ -149,7 +149,6 @@ REST_FRAMEWORK = {
         "config.renderer.CustomRenderer",
     ],
     "DEFAULT_PARSER_CLASSES": [
-        "rest_framework.parsers.JSONParser",
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",
         "nested_multipart_parser.drf.DrfNestedParser",
         "rest_framework.parsers.MultiPartParser",
