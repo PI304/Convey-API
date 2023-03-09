@@ -15,7 +15,7 @@ body 에 들어갈 data 의 스키마는 API Document 에 정의되어 있습니
 피험자 id 는 request body 에 명시합니다. 피험자 응답은 Part 단위로 전송하며 sector 에 대한 응답들로 리스트가 구성됩니다.
 자세한 스키마는 아래 json 파일과 API Document 를 참고해주세요.
 
-[//]: # ([sample-survey-package-answer-data.json]&#40;apps/survey-packages/test/sample-data/sample-survey-package-answer-data.json&#41;)
+[survey_package_answer.json](apps/survey_packages/tests/sample_data/survey_package_answer.json)
 
 ---
 
@@ -141,7 +141,7 @@ survey package 를 구성 (compose) 하기 위해서는 **우선 기본 정보�
 
 기본 정보로만 채워진 survey package 를 생성하는 request 의 body 예시는 아래 파일에서 확인할 수 있습니다.
 
-[base_package.json](apps/survey-packages/tests/sample_data/base_package.json)
+[base_package.json](apps/survey_packages/tests/sample_data/base_package.json)
 
 
 ---
@@ -190,7 +190,7 @@ subject 인 '양육' 만이 포함되어 있으며 survey 의 직접적인 제�
 <img width="471" alt="스크린샷 2023-03-04 오전 11 25 28" src="https://user-images.githubusercontent.com/89679621/222870992-97847277-9648-4a13-a414-aa577c03f5e2.png">
 
 
-전체적 데이터 샘플은 [survey_package_parts.json](apps/survey-packages/tests/sample_data/survey_package_parts.json) 을 참고해주세요.
+전체적 데이터 샘플은 [survey_package_parts.json](apps/survey_packages/tests/sample_data/survey_package_parts.json) 을 참고해주세요.
 
 
 ---
