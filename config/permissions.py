@@ -31,3 +31,12 @@ class IsAuthorOrReadOnly(BasePermission):
         if request.user and request.method in SAFE_METHODS:
             return True
         return obj.author_id == request.user.id
+
+
+class IsOwnerOrReadOnly(BasePermission):
+    message = "Only the owner can write"
+
+    def has_object_permission(self, request, view, obj) -> bool:
+        if request.user and request.method in SAFE_METHODS:
+            return True
+        return obj.owner_id == request.user.id

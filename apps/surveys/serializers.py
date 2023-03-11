@@ -80,6 +80,7 @@ class SurveySectorSerializer(serializers.ModelSerializer):
 
 class SurveySerializer(serializers.ModelSerializer):
     sectors = SurveySectorSerializer(many=True, read_only=True)
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Survey

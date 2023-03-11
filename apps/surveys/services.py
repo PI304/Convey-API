@@ -4,6 +4,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
+from apps.survey_packages.models import Respondent
 from apps.survey_packages.serializers import RespondentSerializer
 from apps.surveys.models import (
     Survey,
@@ -18,7 +19,7 @@ from apps.surveys.serializers import (
     QuestionAnswerSerializer,
 )
 from apps.users.models import User
-from config.exceptions import InstanceNotFound
+from config.exceptions import InstanceNotFound, ConflictException
 
 
 class SurveyService(object):
@@ -136,6 +137,17 @@ class QuestionAnswerService(object):
             )
 
     def record_respondent(self):
+        existing_response = Respondent.objects.filter(
+            respondent_id=self.respondent_id,
+            survey_package_id=self.package_id,
+            workspace_id=self.workspace_id,
+        ).first()
+
+        if existing_response is not None:
+            raise ConflictException(
+                "this respondent has already submitted a response for this survey package"
+            )
+
         serializer = RespondentSerializer(data=dict(respondent_id=self.respondent_id))
         if serializer.is_valid(raise_exception=True):
             serializer.save(
