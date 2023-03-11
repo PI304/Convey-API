@@ -32,7 +32,9 @@ class SurveyListView(generics.ListCreateAPIView):
     serializer_class = SimpleSurveySerializer
 
     def get_queryset(self) -> QuerySet:
-        return self.queryset.filter(author_id=self.request.user.id).all()
+        return self.queryset.filter(author_id=self.request.user.id).select_related(
+            "author"
+        )
 
     @swagger_auto_schema(
         operation_summary="기본 정보를 입력 받아 빈 survey 를 만듭니다",
@@ -102,7 +104,7 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
     ]
 
     def get_queryset(self) -> QuerySet:
-        return self.queryset.prefetch_related(
+        return self.queryset.select_related("author").prefetch_related(
             Prefetch(
                 "sectors",
                 queryset=SurveySector.objects.prefetch_related(

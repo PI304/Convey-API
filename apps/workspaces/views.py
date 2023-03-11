@@ -4,10 +4,11 @@ import shortuuid
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from rest_framework.generics import get_object_or_404 as _get_object_or_404
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -26,6 +27,7 @@ from apps.workspaces.serializers import (
 )
 from apps.workspaces.services import RoutineService, WorkspaceService
 from config.exceptions import InstanceNotFound
+from config.permissions import IsOwnerOrReadOnly
 
 
 @method_decorator(
@@ -40,7 +42,11 @@ class WorkspaceListView(generics.ListCreateAPIView):
     queryset = Workspace.objects.all()
 
     def get_queryset(self) -> QuerySet:
-        return self.queryset.filter(owner_id=self.request.user.id)
+        return (
+            self.queryset.filter(owner_id=self.request.user.id)
+            .select_related("owner")
+            .prefetch_related("survey_packages")
+        )
 
     @swagger_auto_schema(
         operation_summary="빈 workspace 를 생성합니다",
@@ -88,6 +94,13 @@ class WorkspaceDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = WorkspaceSerializer
     queryset = Workspace.objects.all()
 
+    def get_queryset(self) -> QuerySet:
+        return (
+            self.queryset.filter(owner_id=self.request.user.id)
+            .select_related("owner")
+            .prefetch_related("survey_packages")
+        )
+
 
 @method_decorator(
     name="get",
@@ -98,12 +111,17 @@ class WorkspaceDetailView(generics.RetrieveDestroyAPIView):
 class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
     serializer_class = RoutineSerializer
     queryset = Routine.objects.all()
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self) -> QuerySet:
-        return self.queryset.select_related("routine_details")
+        return self.queryset.select_related("workspace").prefetch_related(
+            "workspace__owner", "routines"
+        )
 
     def get_object(self) -> Routine:
-        return self.queryset.filter(workspace_id=self.kwargs.get("pk")).first()
+        return _get_object_or_404(
+            self.get_queryset(), workspace_id=self.kwargs.get("pk")
+        )
 
     @swagger_auto_schema(
         operation_summary="workspace 에 대응하는 루틴을 만듭니다",

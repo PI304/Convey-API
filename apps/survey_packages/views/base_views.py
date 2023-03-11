@@ -8,6 +8,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, permissions
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404 as _get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -42,7 +43,11 @@ class SurveyPackageListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, AdminOnly]
 
     def get_queryset(self) -> QuerySet:
-        return self.queryset.filter(author_id=self.request.user.id)
+        return (
+            self.queryset.filter(author_id=self.request.user.id)
+            .select_related("author")
+            .prefetch_related("contacts")
+        )
 
     @swagger_auto_schema(
         operation_summary="기본 정보만이 채워진 빈 설문 패키지를 만듭니다",
@@ -224,29 +229,9 @@ class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
-class KickOffSurveyView(APIView):
-    def get_routine(self) -> Routine:
-        key = self.request.GET.get("key", None)
-        code = self.request.GET.get("code", None)
-
-        if not (key and code):
-            raise ValidationError("'key' and 'code'should be set in query string")
-
-        uuid = key[:22]
-        subject_id = key[22:]
-
-        try:
-            workspace = (
-                Workspace.objects.filter(uuid=uuid).select_related("routine").first()
-            )
-            if workspace.access_code != code:
-                raise UnprocessableException("access code does not match")
-        except Http404:
-            raise InstanceNotFound("no workspace by the provided key")
-
-        return workspace.routine
-
-    @swagger_auto_schema(
+@method_decorator(
+    name="get",
+    decorator=swagger_auto_schema(
         operation_summary="워크스페이스와 피험자에 대응하는 kick-off survey 를 가져옵니다",
         manual_parameters=[
             openapi.Parameter(
@@ -278,11 +263,69 @@ class KickOffSurveyView(APIView):
                 },
             )
         },
-    )
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+    ),
+)
+class KickOffSurveyView(generics.RetrieveAPIView):
+    serializer_class = SurveyPackageSerializer
+    queryset = SurveyPackage.objects.all()
+
+    def get_routine(self) -> Routine:
+        key = self.request.GET.get("key", None)
+        code = self.request.GET.get("code", None)
+
+        if not (key and code):
+            raise ValidationError("'key' and 'code'should be set in query string")
+
+        uuid = key[:22]
+        subject_id = key[22:]
+
+        try:
+            workspace = (
+                Workspace.objects.filter(uuid=uuid).select_related("routine").first()
+            )
+            if workspace.access_code != code:
+                raise UnprocessableException("access code does not match")
+        except Http404:
+            raise InstanceNotFound("no workspace by the provided key")
+
+        return workspace.routine
+
+    def get_queryset(self) -> QuerySet:
+        return self.queryset.select_related("author").prefetch_related(
+            "contacts",
+            Prefetch(
+                "parts",
+                queryset=PackagePart.objects.prefetch_related(
+                    Prefetch(
+                        "subjects",
+                        queryset=PackageSubject.objects.prefetch_related(
+                            Prefetch(
+                                "surveys",
+                                queryset=PackageSubjectSurvey.objects.select_related(
+                                    "survey"
+                                ).prefetch_related(
+                                    Prefetch(
+                                        "survey__sectors",
+                                        queryset=SurveySector.objects.prefetch_related(
+                                            "common_choices",
+                                            Prefetch(
+                                                "questions",
+                                                queryset=SectorQuestion.objects.prefetch_related(
+                                                    "choices"
+                                                ),
+                                            ),
+                                        ),
+                                    )
+                                ),
+                            )
+                        ),
+                    )
+                ),
+            ),
+        )
+
+    def get_object(self) -> SurveyPackage:
         associated_routine = self.get_routine()
-        survey_package = SurveyPackage.objects.get(id=associated_routine.kick_off_id)
-
-        serializer = SurveyPackageSerializer(survey_package)
-
-        return Response(serializer.data)
+        return _get_object_or_404(
+            self.get_queryset(), id=associated_routine.kick_off_id
+        )

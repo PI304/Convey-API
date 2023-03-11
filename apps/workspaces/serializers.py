@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.survey_packages.serializers import SurveyPackageSerializer
+from apps.users.serializers import UserSerializer
 from apps.workspaces.models import (
     Workspace,
     Routine,
@@ -11,6 +12,8 @@ from apps.workspaces.models import (
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(read_only=True)
+
     class Meta:
         model = Workspace
         fields = [
