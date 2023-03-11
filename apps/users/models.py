@@ -44,6 +44,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_deleted", False)
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("role", 0)
+        extra_fields.setdefault("privacy_policy_agreed", 1)
 
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
@@ -66,7 +67,7 @@ class User(AbstractBaseUser, TimeStampMixin, SoftDeleteMixin, PermissionsMixin):
     social_provider = models.CharField(
         max_length=15, null=True, choices=SocialProviderType.choices
     )
-
+    privacy_policy_agreed = models.BooleanField(null=False)
     is_staff = models.BooleanField(
         default=False,
     )

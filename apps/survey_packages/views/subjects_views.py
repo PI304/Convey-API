@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Prefetch
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -21,6 +21,7 @@ from apps.survey_packages.serializers import (
     PackageSubjectSurveySerializer,
 )
 from apps.survey_packages.services import SurveyPackageService
+from apps.surveys.models import SurveySector, SectorQuestion
 from config.exceptions import InstanceNotFound
 
 
@@ -33,7 +34,6 @@ from config.exceptions import InstanceNotFound
                 "id", openapi.IN_PATH, description="part id", type=openapi.TYPE_INTEGER
             )
         ],
-        # responses={200: openapi.Response("ok", PackageSubjectSerializer(many=True))},
     ),
 )
 class PackageSubjectListView(generics.ListCreateAPIView):
@@ -41,7 +41,29 @@ class PackageSubjectListView(generics.ListCreateAPIView):
     queryset = PackageSubject.objects.all()
 
     def get_queryset(self) -> QuerySet:
-        return self.queryset.filter(package_part_id=self.kwargs.get("pk"))
+        return self.queryset.filter(
+            package_part_id=self.kwargs.get("pk")
+        ).prefetch_related(
+            Prefetch(
+                "surveys",
+                queryset=PackageSubjectSurvey.objects.select_related(
+                    "survey"
+                ).prefetch_related(
+                    Prefetch(
+                        "survey__sectors",
+                        queryset=SurveySector.objects.prefetch_related(
+                            "common_choices",
+                            Prefetch(
+                                "questions",
+                                queryset=SectorQuestion.objects.prefetch_related(
+                                    "choices"
+                                ),
+                            ),
+                        ),
+                    )
+                ),
+            )
+        )
 
     @swagger_auto_schema(
         operation_summary="설문 패키지의, 디바이더 하위의 대주제를 추가합니다",
