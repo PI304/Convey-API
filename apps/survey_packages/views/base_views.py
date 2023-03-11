@@ -1,6 +1,6 @@
 from typing import Any
 
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Prefetch
 from django.http import Http404
 from datetime import datetime
 from django.utils.decorators import method_decorator
@@ -15,15 +15,19 @@ from rest_framework.views import APIView
 from apps.survey_packages.models import (
     SurveyPackage,
     PackageContact,
+    PackagePart,
+    PackageSubject,
+    PackageSubjectSurvey,
 )
 from apps.survey_packages.serializers import (
     SurveyPackageSerializer,
     SimpleSurveyPackageSerializer,
 )
 from apps.survey_packages.services import SurveyPackageService
+from apps.surveys.models import SectorQuestion, Survey, SurveySector
 from apps.workspaces.models import Routine, Workspace
 from config.exceptions import InstanceNotFound, UnprocessableException
-from config.permissions import AdminOnly
+from config.permissions import AdminOnly, IsAuthorOrReadOnly
 
 
 @method_decorator(
@@ -121,7 +125,41 @@ class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
     allowed_methods = ["DELETE", "GET", "PATCH"]
     queryset = SurveyPackage.objects.all()
     serializer_class = SurveyPackageSerializer
-    # permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
+
+    def get_queryset(self) -> QuerySet:
+        return self.queryset.select_related("author").prefetch_related(
+            "contacts",
+            Prefetch(
+                "parts",
+                queryset=PackagePart.objects.prefetch_related(
+                    Prefetch(
+                        "subjects",
+                        queryset=PackageSubject.objects.prefetch_related(
+                            Prefetch(
+                                "surveys",
+                                queryset=PackageSubjectSurvey.objects.select_related(
+                                    "survey"
+                                ).prefetch_related(
+                                    Prefetch(
+                                        "survey__sectors",
+                                        queryset=SurveySector.objects.prefetch_related(
+                                            "common_choices",
+                                            Prefetch(
+                                                "questions",
+                                                queryset=SectorQuestion.objects.prefetch_related(
+                                                    "choices"
+                                                ),
+                                            ),
+                                        ),
+                                    )
+                                ),
+                            )
+                        ),
+                    )
+                ),
+            ),
+        )
 
     @swagger_auto_schema(
         operation_summary="설문 패키지 기본 정보를 수정합니다",

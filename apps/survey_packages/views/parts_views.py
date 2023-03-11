@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any
 
+from django.db.models import QuerySet, Prefetch
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -10,9 +11,15 @@ from rest_framework import generics, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.survey_packages.models import PackagePart, SurveyPackage
+from apps.survey_packages.models import (
+    PackagePart,
+    SurveyPackage,
+    PackageSubject,
+    PackageSubjectSurvey,
+)
 from apps.survey_packages.serializers import PackagePartSerializer
 from apps.survey_packages.services import SurveyPackageService
+from apps.surveys.models import SurveySector, SectorQuestion
 from config.exceptions import InstanceNotFound
 
 
@@ -26,6 +33,34 @@ from config.exceptions import InstanceNotFound
 class PackagePartListView(generics.ListCreateAPIView):
     serializer_class = PackagePartSerializer
     queryset = PackagePart.objects.all()
+
+    def get_queryset(self) -> QuerySet:
+        return self.queryset.prefetch_related(
+            Prefetch(
+                "subjects",
+                queryset=PackageSubject.objects.prefetch_related(
+                    Prefetch(
+                        "surveys",
+                        queryset=PackageSubjectSurvey.objects.select_related(
+                            "survey"
+                        ).prefetch_related(
+                            Prefetch(
+                                "survey__sectors",
+                                queryset=SurveySector.objects.prefetch_related(
+                                    "common_choices",
+                                    Prefetch(
+                                        "questions",
+                                        queryset=SectorQuestion.objects.prefetch_related(
+                                            "choices"
+                                        ),
+                                    ),
+                                ),
+                            )
+                        ),
+                    )
+                ),
+            )
+        )
 
     @swagger_auto_schema(
         operation_summary="설문 패키지 하위에 하나의 디바이더를 생성합니다",
