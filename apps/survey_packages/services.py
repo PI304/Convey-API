@@ -1,8 +1,7 @@
-from datetime import datetime
 from typing import Union, List
 
 import openpyxl.utils.cell
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Prefetch
 from django.shortcuts import get_object_or_404
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
@@ -13,6 +12,7 @@ from apps.survey_packages.models import (
     PackagePart,
     PackageSubjectSurvey,
     Respondent,
+    PackageSubject,
 )
 from apps.survey_packages.serializers import (
     PackageContactSerializer,
@@ -20,7 +20,7 @@ from apps.survey_packages.serializers import (
     PackageSubjectSerializer,
     PackageSubjectSurveySerializer,
 )
-from apps.surveys.models import QuestionAnswer
+from apps.surveys.models import QuestionAnswer, SurveySector, SectorQuestion
 from apps.workspaces.models import Workspace, RoutineDetail
 
 
@@ -113,7 +113,6 @@ class ResponseExportService(object):
 
     def _create_worksheet_template(self) -> Worksheet:
         wb: Workbook = Workbook()
-        wb.title = f"{self.survey_package.title}_{datetime.now()}"
         self.workbook = wb
         ws: Worksheet = wb.active
         self.worksheet = ws
@@ -146,18 +145,16 @@ class ResponseExportService(object):
         return self.respondents
 
     def _add_sector_data(self, sector_data, prefix):
-        question_type = sector_data.get("question_type")
-        print(question_type)
-        questions = sector_data.get("questions")
-        sorted_questions = sorted(questions, key=lambda d: d["number"])
+        question_type = sector_data.question_type
+        questions = sector_data.questions.all()
 
-        for question in sorted_questions:
+        for question in questions:
             col_letter = openpyxl.utils.cell.get_column_letter(self._col_num)
 
             # bread crumb format question number
             if self.worksheet[f"{col_letter}1"].value is None:
-                formatted_question_number = str(question.get("number"))
-                print(formatted_question_number)
+                formatted_question_number = str(question.number)
+
                 if formatted_question_number[-1] != "0":
                     formatted_question_number = formatted_question_number.replace(
                         ".", "-"
@@ -170,18 +167,12 @@ class ResponseExportService(object):
                     f"{col_letter}1"
                 ] = f"{prefix}-{formatted_question_number}"
 
-            answers: QuerySet = (
-                QuestionAnswer.objects.filter(question_id=question["id"])
-                .order_by("respondent_id")
-                .values()
-            )
-
-            if len(self.respondents) != len(answers):
+            if len(self.respondents) != question.answers.count():
                 raise ValidationError("something went wrong")
 
             row = 2
-            for answer in answers:
-                answer_val = answer["answer"]
+            for answer in question.answers.all():
+                answer_val = answer.answer
                 if "$" in answer_val:
                     answer_val = answer_val.replace("$", ", ")
 
@@ -200,37 +191,66 @@ class ResponseExportService(object):
             self._col_num += 1
 
     def _add_survey_data(self, survey_data, prefix):
-        if survey_data.get("number"):
-            prefix = f"{prefix}-{survey_data.get('number')}"
+        if survey_data.number:
+            prefix = f"{prefix}-{survey_data.number}"
 
-        survey = survey_data.get("survey")
-        prefix = f"{prefix}-{survey.get('abbr')}"
+        survey = survey_data.survey
+        prefix = f"{prefix}-{survey.abbr}"
 
-        sectors = survey.get("sectors")
+        sectors = survey.sectors.all()
 
         for sector in sectors:
             self._add_sector_data(sector, prefix)
 
     def _add_subject_data(self, subject_data):
-        prefix = f"{subject_data.get('number')}"
-        for survey in subject_data.get("surveys"):
+        prefix = f"{subject_data.number}"
+        for survey in subject_data.surveys.all():
             self._add_survey_data(survey, prefix)
 
-    def _add_part_data(self, part_data: dict):
-        for subject in part_data.get("subjects"):
+    def _add_part_data(self, part_data: PackagePart):
+        print(part_data.subjects)
+        for subject in part_data.subjects.all():
             self._add_subject_data(subject)
 
     def export_to_worksheet(self):
         self._create_worksheet_template()
 
-        parts: QuerySet = PackagePart.objects.filter(
+        queryset: QuerySet = PackagePart.objects.filter(
             survey_package_id=self.survey_package.id
-        ).all()
-        data: list[dict] = PackagePartSerializer(parts, many=True).data
+        ).prefetch_related(
+            Prefetch(
+                "subjects",
+                queryset=PackageSubject.objects.prefetch_related(
+                    Prefetch(
+                        "surveys",
+                        queryset=PackageSubjectSurvey.objects.select_related(
+                            "survey"
+                        ).prefetch_related(
+                            Prefetch(
+                                "survey__sectors",
+                                queryset=SurveySector.objects.prefetch_related(
+                                    Prefetch(
+                                        "questions",
+                                        queryset=SectorQuestion.objects.prefetch_related(
+                                            Prefetch(
+                                                "answers",
+                                                queryset=QuestionAnswer.objects.filter(
+                                                    survey_package_id=self.survey_package.id
+                                                ).order_by("respondent_id"),
+                                            )
+                                        ).order_by(
+                                            "number"
+                                        ),
+                                    )
+                                ),
+                            )
+                        ),
+                    )
+                ),
+            )
+        )
 
-        print(data)
-
-        for part in data:
+        for part in queryset:
             self._add_part_data(part)
 
         return self.workbook
