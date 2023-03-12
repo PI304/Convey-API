@@ -98,7 +98,9 @@ class QuestionAnswer(TimeStampMixin):
     survey_package = models.ForeignKey(
         "survey_packages.SurveyPackage", null=True, on_delete=models.SET_NULL
     )
-    question = models.ForeignKey(SectorQuestion, on_delete=models.CASCADE, null=False)
+    question = models.ForeignKey(
+        SectorQuestion, on_delete=models.CASCADE, null=False, related_name="answers"
+    )
     respondent_id = models.CharField(max_length=30, null=False)
     workspace = models.ForeignKey(
         "workspaces.Workspace", on_delete=models.SET_NULL, null=True
