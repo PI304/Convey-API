@@ -196,6 +196,7 @@ class SurveyPackageAnswerDownloadView(APIView):
         response = HttpResponse(
             content=stream,
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            status=204,
         )
         response.headers[
             "Content-Disposition"
