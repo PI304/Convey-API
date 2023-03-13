@@ -35,7 +35,9 @@ class PackagePartListView(generics.ListCreateAPIView):
     queryset = PackagePart.objects.all()
 
     def get_queryset(self) -> QuerySet:
-        return self.queryset.prefetch_related(
+        return self.queryset.filter(
+            survey_package_id=self.kwargs.get("pk")
+        ).prefetch_related(
             Prefetch(
                 "subjects",
                 queryset=PackageSubject.objects.prefetch_related(
