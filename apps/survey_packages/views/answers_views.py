@@ -1,7 +1,9 @@
+from datetime import datetime
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 from django.db.models import QuerySet
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -11,6 +13,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.survey_packages.services import ResponseExportService
 from apps.surveys.models import QuestionAnswer
 from apps.surveys.serializers import QuestionAnswerSerializer
 from apps.surveys.services import QuestionAnswerService
@@ -172,17 +175,31 @@ class SurveyPackageAnswerDownloadView(APIView):
             ),
         ],
     )
-    def get(self, request, pk, format=None) -> Response:
+    def get(self, request, pk, format=None) -> HttpResponse:
         instance: WorkspaceComposition = self.get_object(pk)
 
-        routine_id = instance.workspace.routine.id
-        routine_detail: RoutineDetail = RoutineDetail.objects.filter(
-            routine_id=routine_id, survey_package_id=instance.id
-        ).first()
+        service = ResponseExportService(
+            instance.workspace,
+            instance.survey_package,
+        )
 
-        workspace_name: str = instance.workspace.name
         package_name = instance.survey_package.title
-        nth_day = routine_detail.nth_day
-        time = routine_detail.time
+        package_name = package_name.replace(" ", "_")
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        wb = service.export_to_worksheet()
+
+        with NamedTemporaryFile() as tmp:
+            wb.save(tmp.name)
+            tmp.seek(0)
+            stream = tmp.read()
+
+        response = HttpResponse(
+            content=stream,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            status=204,
+        )
+        response.headers[
+            "Content-Disposition"
+        ] = f'attachment; filename={package_name}-{datetime.now().strftime("%Y%m%d%H%M")}.xlsx'
+
+        return response
