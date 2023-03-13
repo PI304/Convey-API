@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.contrib.auth.models import update_last_login
+from django.core.signing import Signer
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from datetime import datetime
@@ -295,10 +296,14 @@ class EmailVerification(APIView):
 
         email = request.data.get("email")
         generated_code = UserService.generate_random_code(5, 8)
+        signer = Signer()
+        signed_cookie_obj = signer.sign_object(
+            {"email_verification_code": generated_code}
+        )
 
         # set code in cookie
         res = Response({"detail": "email sent"}, status=status.HTTP_200_OK)
-        res.set_cookie("email_verification_code", generated_code, max_age=300)
+        res.set_cookie("email_verification_code", signed_cookie_obj, max_age=300)
 
         # send email
         email = EmailMessage(
@@ -329,6 +334,7 @@ class EmailConfirmation(APIView):
             properties={"verification_code": openapi.Schema(type=openapi.TYPE_STRING)},
         ),
         responses={
+            204: "success",
             400: "No cookies attached",
             409: "Verification code does not match",
         },
@@ -336,12 +342,16 @@ class EmailConfirmation(APIView):
     def post(self, request, *args, **kwargs):
         if "email_verification_code" in request.COOKIES:
             code_cookie = request.COOKIES.get("email_verification_code")
+            signer = Signer()
+            unsinged_code_cookie = signer.unsign_object(code_cookie).get(
+                "email_verification_code"
+            )
         else:
             raise UnprocessableException("proceed email verification first")
 
         code_input = request.data.get("verification_code")
-        if code_cookie == code_input:
-            res = Response(status=status.HTTP_200_OK)
+        if unsinged_code_cookie == code_input:
+            res = Response(status=status.HTTP_204_NO_CONTENT)
             if "email_confirmation_code" in request.COOKIES:
                 res.delete_cookie("email_verification_code")
             res.set_cookie("email_confirmation", "complete", max_age=600)
