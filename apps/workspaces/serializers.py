@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.survey_packages.serializers import SurveyPackageSerializer
+from apps.survey_packages.serializers import (
+    SurveyPackageSerializer,
+    MiniSurveyPackageSerializer,
+)
 from apps.users.serializers import UserSerializer
 from apps.workspaces.models import (
     Workspace,
@@ -11,8 +14,18 @@ from apps.workspaces.models import (
 )
 
 
+class MiniWorkspaceCompositionSerializer(serializers.ModelSerializer):
+    survey_package = MiniSurveyPackageSerializer(read_only=True)
+
+    class Meta:
+        model = WorkspaceComposition
+        fields = ["survey_package", "workspace_id"]
+        read_only_fields = ["survey_package", "workspace_id"]
+
+
 class WorkspaceSerializer(serializers.ModelSerializer):
     owner = UserSerializer(read_only=True)
+    survey_packages = MiniWorkspaceCompositionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Workspace
@@ -39,6 +52,22 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         if len(value) < 6:
             raise ValidationError("access code must be at least 6 characters long")
         return value
+
+    def to_representation(self, obj):
+        representation: dict = super().to_representation(obj)
+        survey_packages_representation: list[dict] = representation.pop(
+            "survey_packages"
+        )
+
+        for r in survey_packages_representation:
+            survey_package_representation = r.pop("survey_package")
+            for key, val in survey_package_representation.items():
+                print(key, val)
+                r[key] = val
+
+        representation["survey_packages"] = survey_packages_representation
+
+        return representation
 
 
 class RoutineDetailSerializer(serializers.ModelSerializer):

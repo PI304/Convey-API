@@ -26,7 +26,7 @@ from apps.workspaces.serializers import (
     RoutineDetailSerializer,
 )
 from apps.workspaces.services import RoutineService, WorkspaceService
-from config.exceptions import InstanceNotFound
+from config.exceptions import InstanceNotFound, ConflictException
 from config.permissions import IsOwnerOrReadOnly
 
 
@@ -103,12 +103,21 @@ class WorkspaceDetailView(generics.RetrieveDestroyAPIView):
 
 
 @method_decorator(
+    name="delete",
+    decorator=swagger_auto_schema(
+        operation_summary="해당 workspace id 의 루틴을 삭제합니다", responses={204: "success"}
+    ),
+)
+@method_decorator(
     name="get",
     decorator=swagger_auto_schema(
         operation_summary="해당 workspace id 의 루틴을 가져옵니다",
+        responses=openapi.Response("ok", RoutineSerializer),
     ),
 )
-class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
+class RoutineView(
+    generics.RetrieveAPIView, generics.CreateAPIView, generics.DestroyAPIView
+):
     serializer_class = RoutineSerializer
     queryset = Routine.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
@@ -161,6 +170,14 @@ class RoutineView(generics.RetrieveAPIView, generics.CreateAPIView):
         },
     )
     def post(self, request: Request, *args: Any, **kwargs) -> Response:
+        try:
+            self.get_object()
+            raise ConflictException(
+                "Routine for this workspace already exists. Workspace can only have one routine"
+            )
+        except Http404:
+            pass
+
         kick_off_package_id = request.data.get("kick_off")
 
         try:
