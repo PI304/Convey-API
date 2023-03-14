@@ -62,7 +62,9 @@ class WorkspaceService(object):
 
             try:
                 existing_composition = get_object_or_404(
-                    WorkspaceComposition, survey_package_id=pid
+                    WorkspaceComposition,
+                    survey_package_id=pid,
+                    workspace_id=self.workspace.id,
                 )
                 raise ConflictException(
                     f"survey package of id {pid} is already included in this workspace"
