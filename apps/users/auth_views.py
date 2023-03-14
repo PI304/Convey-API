@@ -489,20 +489,23 @@ class AppSignUpView(APIView):
         operation_summary="앱 사용자들을 위한 회원가입, 회원의 정보를 보냅니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["name", "email", "social_provider"],
+            required=["name", "email", "social_provider", "privacy_policy_agreed"],
             properties={
                 "name": openapi.Schema(type=openapi.TYPE_STRING),
                 "email": openapi.Schema(type=openapi.TYPE_STRING),
                 "social_provider": openapi.Schema(
                     type=openapi.TYPE_STRING, description="소셜 로그인 플랫폼 ex) kakao"
                 ),
+                "privacy_policy_agreed": openapi.Schema(
+                    type=openapi.TYPE_BOOLEAN, description="개인정보동의 여부"
+                ),
             },
         ),
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        if len(request.data) != 3:
+        if len(request.data) != 4:
             raise ValidationError(
-                "body should include 'name', 'email' and 'socialProvider'"
+                "body should include 'name', 'email', 'socialProvider' and 'privacyPolicyAgreed' fields"
             )
 
         # check duplicate email
