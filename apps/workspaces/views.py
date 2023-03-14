@@ -302,8 +302,15 @@ class WorkspaceDestroySurveyPackageView(generics.DestroyAPIView):
     queryset = WorkspaceComposition.objects.all()
     serializer_class = WorkspaceSerializer
 
-    def get_queryset(self) -> QuerySet:
-        return self.queryset.filter(survey_package_id=self.kwargs.get("pk"))
+    def get_queryset(self):
+        return self.queryset.filter(workspace_id=self.kwargs.get("pk"))
+
+    def get_object(self):
+        obj = _get_object_or_404(
+            self.get_queryset(), survey_package_id=self.kwargs.get("survey_package_id")
+        )
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     @swagger_auto_schema(
         operation_summary="워크스페이스에서 설문 패키지를 제거합니다",
@@ -311,9 +318,15 @@ class WorkspaceDestroySurveyPackageView(generics.DestroyAPIView):
             openapi.Parameter(
                 "id",
                 openapi.IN_QUERY,
-                description="제외시키고자 하는 설문 패키지 id",
+                description="워크스페이스 id",
                 type=openapi.TYPE_INTEGER,
-            )
+            ),
+            openapi.Parameter(
+                "survey_package_id",
+                openapi.IN_QUERY,
+                description="제거하고자 하는 survey package의 id",
+                type=openapi.TYPE_INTEGER,
+            ),
         ],
         responses={200: openapi.Response("deleted", WorkspaceSerializer)},
     )
