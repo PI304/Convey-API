@@ -10,7 +10,7 @@ from apps.workspaces.serializers import (
     RoutineDetailSerializer,
     WorkspaceCompositionSerializer,
 )
-from config.exceptions import InstanceNotFound
+from config.exceptions import InstanceNotFound, ConflictException
 
 
 class RoutineService(object):
@@ -59,6 +59,16 @@ class WorkspaceService(object):
                 package = get_object_or_404(SurveyPackage, id=pid)
             except Http404:
                 raise ValidationError(f"invalid package id: {pid}")
+
+            try:
+                existing_composition = get_object_or_404(
+                    WorkspaceComposition, survey_package_id=pid
+                )
+                raise ConflictException(
+                    f"survey package of id {pid} is already included in this workspace"
+                )
+            except Http404:
+                pass
 
             serializer = WorkspaceCompositionSerializer(data={})
             if serializer.is_valid(raise_exception=True):

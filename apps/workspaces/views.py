@@ -104,15 +104,13 @@ class WorkspaceDetailView(generics.RetrieveDestroyAPIView):
 
 @method_decorator(
     name="delete",
-    decorator=swagger_auto_schema(
-        operation_summary="해당 workspace id 의 루틴을 삭제합니다", responses={204: "success"}
-    ),
+    decorator=swagger_auto_schema(operation_summary="해당 workspace id 의 루틴을 삭제합니다"),
 )
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
         operation_summary="해당 workspace id 의 루틴을 가져옵니다",
-        responses=openapi.Response("ok", RoutineSerializer),
+        responses={200: openapi.Response("ok", RoutineSerializer)},
     ),
 )
 class RoutineView(
