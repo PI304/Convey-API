@@ -19,12 +19,13 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "name",
             "social_provider",
+            "privacy_policy_agreed",
             "role",
             "password",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "privacy_policy_agreed"]
         extra_kwargs = {"role": {"write_only": True}}
 
     def create(self, validated_data):
