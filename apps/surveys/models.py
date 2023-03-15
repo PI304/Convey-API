@@ -32,11 +32,12 @@ class SurveySector(TimeStampMixin):
 
     id = models.BigAutoField(primary_key=True)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="sectors")
-    title = models.CharField(max_length=50, null=False)
-    description = models.CharField(max_length=200, null=False)
+    title = models.CharField(max_length=50, null=True)
+    description = models.CharField(max_length=200, null=True)
     question_type = models.CharField(
         null=False, choices=QuestionType.choices, max_length=15
     )
+    is_linked = models.BooleanField(null=False)
 
     class Meta:
         db_table = "survey_sector"
@@ -55,10 +56,6 @@ class SectorQuestion(TimeStampMixin):
     )
     number = models.FloatField(null=False)
     content = models.CharField(max_length=200, null=False)
-    is_required = models.BooleanField(default=True)
-    linked_sector = models.ForeignKey(
-        SurveySector, on_delete=models.SET_NULL, null=True, related_name="linked_sector"
-    )
 
     class Meta:
         db_table = "sector_question"
