@@ -169,10 +169,11 @@ class RoutineView(
     )
     def post(self, request: Request, *args: Any, **kwargs) -> Response:
         try:
-            self.get_object()
-            raise ConflictException(
-                "Routine for this workspace already exists. Workspace can only have one routine"
-            )
+            existing_routine = self.get_object()
+            if existing_routine:
+                raise ConflictException(
+                    "Routine for this workspace already exists. Workspace can only have one routine"
+                )
         except Http404:
             pass
 
