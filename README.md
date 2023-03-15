@@ -41,11 +41,15 @@ LONG_ANSWER = "long_answer", "서술형"
 
 
 각 sector 는 title, description, question_type 을 기본으로 가지며 common_choices 로 공통선지를 구성해줄 수도 있습니다.
+
+또한, is_linked 필드를 통하여 연결 섹터인지 명시하며, is_linked=True 인 경우,
+하위 문항은 필수적으로 응답하지 않아도 됩니다.
 ```json
 {
   "title": "some sector title",
   "description": "this sector uses common choices",
   "question_type": "likert",
+  "is_linked": false,
   "common_choices": [
     ...
   ],
@@ -76,15 +80,11 @@ LONG_ANSWER = "long_answer", "서술형"
   "number": 1, 
   "content": "질문1",
   "choices": null,
-  "is_required": true,
-  "linked_sector": null
 }
 ```
 - number: 문항 번호
 - content: 문항 내용
 - choices: 문항 개별 선지 (위 likert 의 경우 공통선지를 이용하므로 null)
-- is_required: 필수 여부 (default: true)
-- linked_sector: 연결된 섹터 id
 
 
 **문항 구성하기: 개별 선지를 사용하는 경우**
@@ -93,8 +93,6 @@ LONG_ANSWER = "long_answer", "서술형"
 {
   "number": 1,
   "content": "오늘 아침, 연구참여 아동이 일어날 때",
-  "is_required": true,
-  "linked_sector": null,
   "choices": [
     {
       "number": 1,
