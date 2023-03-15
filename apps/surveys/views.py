@@ -40,6 +40,7 @@ class SurveyListView(generics.ListCreateAPIView):
         operation_summary="기본 정보를 입력 받아 빈 survey 를 만듭니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["title", "description", "abbr"],
             properties={
                 "title": openapi.Schema(type=openapi.TYPE_STRING, description="설문 제목"),
                 "description": openapi.Schema(
@@ -124,12 +125,17 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
             description="sector 로 구성된 list",
             items=openapi.Schema(
                 type=openapi.TYPE_OBJECT,
+                required=["is_linked", "question_type", "questions"],
                 properties={
                     "title": openapi.Schema(
                         type=openapi.TYPE_STRING, description="sector 제목"
                     ),
                     "description": openapi.Schema(
                         type=openapi.TYPE_STRING, description="sector 에 더해질 설명"
+                    ),
+                    "is_linked": openapi.Schema(
+                        type=openapi.TYPE_BOOLEAN,
+                        description="연결 섹터 여부. 연결 섹터의 하위 문항의 경우, 필수적으로 응답을 제출하지 않아도 됩니다",
                     ),
                     "question_type": openapi.Schema(
                         type=openapi.TYPE_STRING,
@@ -172,14 +178,6 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
                                 ),
                                 "content": openapi.Schema(
                                     type=openapi.TYPE_STRING, description="실제 문항 내용"
-                                ),
-                                "is_required": openapi.Schema(
-                                    type=openapi.TYPE_BOOLEAN,
-                                    default=True,
-                                    description="필수 문항 여부",
-                                ),
-                                "linked_sector": openapi.Schema(
-                                    type=openapi.TYPE_INTEGER, description="연결 섹터의 id"
                                 ),
                                 "choices": openapi.Schema(
                                     type=openapi.TYPE_ARRAY,
