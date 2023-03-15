@@ -71,6 +71,7 @@ class SurveyService(object):
             title=data.get("title", None),
             description=data.get("description", None),
             question_type=data.get("question_type", None),
+            is_linked=data.get("is_linked", None),
         )
 
         sector = None
