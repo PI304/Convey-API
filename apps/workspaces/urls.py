@@ -23,7 +23,11 @@ urlpatterns: list[URLPattern] = [
         WorkspaceAddSurveyPackageView.as_view(),
         name="survey_addition",
     ),
-    path("/routine-details", RoutineDetailCreateView.as_view(), name="routine_details"),
+    path(
+        "/routines/<int:pk>/routine-details",
+        RoutineDetailCreateView.as_view(),
+        name="routine_details",
+    ),
     path(
         "/routine-details/<int:pk>", RoutineDetailView.as_view(), name="routine_details"
     ),

@@ -75,7 +75,7 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
         model = RoutineDetail
         fields = [
             "id",
-            "routine",
+            "routine_id",
             "nth_day",
             "time",
             "survey_package",
@@ -84,7 +84,7 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
-            "routine",
+            "routine_id",
             "survey_package",
             "created_at",
             "updated_at",
