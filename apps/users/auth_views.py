@@ -343,14 +343,14 @@ class EmailConfirmation(APIView):
         if "email_verification_code" in request.COOKIES:
             code_cookie = request.COOKIES.get("email_verification_code")
             signer = Signer()
-            unsinged_code_cookie = signer.unsign_object(code_cookie).get(
+            unsigned_code_cookie = signer.unsign_object(code_cookie).get(
                 "email_verification_code"
             )
         else:
             raise UnprocessableException("proceed email verification first")
 
         code_input = request.data.get("verification_code")
-        if unsinged_code_cookie == code_input:
+        if unsigned_code_cookie == code_input:
             res = Response(status=status.HTTP_204_NO_CONTENT)
             if "email_confirmation_code" in request.COOKIES:
                 res.delete_cookie("email_verification_code")
