@@ -215,12 +215,14 @@ class RoutineView(
     name="post",
     decorator=swagger_auto_schema(
         operation_summary="루틴에 세부 일정을 추가합니다",
+        manual_parameters=[
+            openapi.Parameter(
+                "id", openapi.IN_PATH, type=openapi.TYPE_INTEGER, description="루틴의 id"
+            )
+        ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                "routine": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="전체 루틴의 id"
-                ),
                 "nth_day": openapi.Schema(
                     type=openapi.TYPE_INTEGER, description="n번째 날"
                 ),
@@ -233,6 +235,7 @@ class RoutineView(
                 ),
             },
         ),
+        responses={201: openapi.Response("created", RoutineDetailSerializer)},
     ),
 )
 class RoutineDetailCreateView(generics.CreateAPIView):
@@ -241,7 +244,7 @@ class RoutineDetailCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(
-            routine_id=self.request.data.get("routine", None),
+            routine_id=self.kwargs.get("pk", None),
             survey_package_id=self.request.data.get("survey_package", None),
         )
 

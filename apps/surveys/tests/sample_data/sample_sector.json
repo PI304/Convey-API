@@ -3,6 +3,7 @@
     "title": "sector 1 title",
     "description": "sector 1",
     "question_type": "likert",
+    "is_linked": false,
     "common_choices": [
       {
         "number": "1",
@@ -39,23 +40,17 @@
       {
         "number": 1,
         "content": "질문1",
-        "choices": null,
-        "is_required": true,
-        "linked_sector": null
+        "choices": null
       },
       {
         "number": 2,
         "content": "질문2",
-        "choices": null,
-        "is_required": true,
-        "linked_sector": null
+        "choices": null
       },
       {
         "number": 3,
         "content": "질문3",
-        "choices": null,
-        "is_required": true,
-        "linked_sector": null
+        "choices": null
       }
     ]
   },
@@ -63,13 +58,12 @@
     "title": "sector 2 title",
     "description": "sector 2",
     "question_type": "short_answer",
+    "is_linked": false,
     "common_choices": null,
     "questions": [
       {
         "number": 1,
         "content": "한번에 적어도 10분 이상 걸은 날은 며칠?",
-        "is_required": true,
-        "linked_sector": null,
         "choices": [
           {
             "number": 1,

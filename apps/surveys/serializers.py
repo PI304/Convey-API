@@ -45,12 +45,10 @@ class SectorQuestionSerializer(serializers.ModelSerializer):
             "choices",
             "number",
             "content",
-            "is_required",
-            "linked_sector",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "sector", "linked_sector", "created_at", "updated_at"]
+        read_only_fields = ["id", "sector", "created_at", "updated_at"]
 
 
 class SurveySectorSerializer(serializers.ModelSerializer):
@@ -67,6 +65,9 @@ class SurveySectorSerializer(serializers.ModelSerializer):
             "question_type",
             "common_choices",
             "questions",
+            "is_linked",
+            "created_at",
+            "updated_at",
         ]
         read_only_fields = [
             "id",
@@ -75,6 +76,8 @@ class SurveySectorSerializer(serializers.ModelSerializer):
             "updated_at",
             "common_choices",
             "questions",
+            "created_at",
+            "updated_at",
         ]
 
 
