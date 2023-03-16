@@ -69,6 +69,7 @@ class PackagePartListView(generics.ListCreateAPIView):
         operation_description="디바이더 하위의 대주제까지 함께 구성합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["title"],
             properties={
                 "title": openapi.Schema(
                     type=openapi.TYPE_STRING,

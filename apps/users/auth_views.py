@@ -97,6 +97,7 @@ class BasicSignInView(APIView):
         operation_summary="어드민 유저 웹사이트 로그인",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["email", "password"],
             properties={
                 "email": openapi.Schema(type=openapi.FORMAT_EMAIL),
                 "password": openapi.Schema(type=openapi.FORMAT_PASSWORD),
@@ -166,6 +167,7 @@ class CheckDuplicateUsernameView(APIView):
         operation_summary="중복 이메일이 존재하는지 확인합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["email"],
             properties={"email": openapi.Schema(type=openapi.FORMAT_EMAIL)},
         ),
         responses={
@@ -203,6 +205,7 @@ class PasswordChangeView(APIView):
         operation_summary="어드민 유저 웹사이트 비밀번호 변경",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["current_password", "new_password"],
             properties={
                 "current_password": openapi.Schema(type=openapi.FORMAT_PASSWORD),
                 "new_password": openapi.Schema(type=openapi.FORMAT_PASSWORD),
@@ -241,6 +244,7 @@ class PasswordResetView(APIView):
         operation_summary="비밀번호를 초기화합니다. 랜덤한 문자열이 임시 비밀번호로 설정되며 이메일로 전송됩니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["email"],
             properties={"email": openapi.Schema(type=openapi.FORMAT_EMAIL)},
         ),
         responses={
@@ -283,6 +287,7 @@ class EmailVerification(APIView):
         operation_summary="회원가입 과정에서의 이메일 검증을 위해 인증 코드를 이메일로 전송합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["email"],
             properties={"email": openapi.Schema(type=openapi.FORMAT_EMAIL)},
         ),
         responses={
@@ -332,6 +337,7 @@ class EmailConfirmation(APIView):
         operation_summary="입력한 이메일 인증코드가 정확한지 확인합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["verification_code"],
             properties={"verification_code": openapi.Schema(type=openapi.TYPE_STRING)},
         ),
         responses={

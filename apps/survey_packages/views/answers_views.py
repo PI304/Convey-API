@@ -48,6 +48,7 @@ class SurveyPackageAnswerCreateView(generics.CreateAPIView):
         ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["key", "answers"],
             properties={
                 "key": openapi.Schema(
                     type=openapi.TYPE_STRING,
