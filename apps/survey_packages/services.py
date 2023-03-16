@@ -63,11 +63,9 @@ class SurveyPackageService(object):
             part = serializer.save(survey_package_id=package_id)
 
         # Create subjects
-        if "subjects" not in part_data or part_data["subjects"] is None:
-            raise InvalidInputException("a part should have a title")
-        self._create_subjects(part_data["subjects"], part.id)
-
-        part.refresh_from_db()
+        if "subjects" in part_data or part_data["subjects"] is not None:
+            self._create_subjects(part_data["subjects"], part.id)
+            part.refresh_from_db()
 
         return part
 
