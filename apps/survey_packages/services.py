@@ -5,7 +5,6 @@ from django.db.models import QuerySet, Prefetch
 from django.shortcuts import get_object_or_404
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
-from rest_framework.exceptions import ValidationError
 
 from apps.survey_packages.models import (
     SurveyPackage,
@@ -22,6 +21,7 @@ from apps.survey_packages.serializers import (
 )
 from apps.surveys.models import QuestionAnswer, SurveySector, SectorQuestion
 from apps.workspaces.models import Workspace, RoutineDetail
+from config.exceptions import InvalidInputException, InternalServerError
 
 
 class SurveyPackageService(object):
@@ -33,7 +33,7 @@ class SurveyPackageService(object):
 
     def add_contacts(self, contacts: List[dict]) -> SurveyPackage:
         if type(contacts) != list:
-            raise ValidationError("'contacts' field must be a list")
+            raise InvalidInputException("'contacts' field must be a list")
 
         for c in contacts:
             serializer = PackageContactSerializer(data=c)
@@ -56,7 +56,7 @@ class SurveyPackageService(object):
     def create_part(self, part_data: dict, package_id: int) -> PackagePart:
         # Create a part
         if "title" not in part_data or part_data["title"] is None:
-            raise ValidationError("a part should have a title")
+            raise InvalidInputException("a part should have a title")
 
         serializer = PackagePartSerializer(data=dict(title=part_data["title"]))
         if serializer.is_valid(raise_exception=True):
@@ -64,7 +64,7 @@ class SurveyPackageService(object):
 
         # Create subjects
         if "subjects" not in part_data or part_data["subjects"] is None:
-            raise ValidationError("a part should have a title")
+            raise InvalidInputException("a part should have a title")
         self._create_subjects(part_data["subjects"], part.id)
 
         part.refresh_from_db()
@@ -168,7 +168,7 @@ class ResponseExportService(object):
                 ] = f"{prefix}-{formatted_question_number}"
 
             if len(self.respondents) != question.answers.count():
-                raise ValidationError("something went wrong")
+                raise InternalServerError()
 
             row = 2
             for answer in question.answers.all():

@@ -3,13 +3,12 @@ from typing import Any
 import shortuuid
 from django.db.models import QuerySet
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from rest_framework.generics import get_object_or_404 as _get_object_or_404
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, permissions
-from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -26,7 +25,7 @@ from apps.workspaces.serializers import (
     RoutineDetailSerializer,
 )
 from apps.workspaces.services import RoutineService, WorkspaceService
-from config.exceptions import InstanceNotFound, ConflictException
+from config.exceptions import InstanceNotFound, ConflictException, InvalidInputException
 from config.permissions import IsOwnerOrReadOnly
 
 
@@ -235,18 +234,38 @@ class RoutineView(
                 ),
             },
         ),
-        responses={201: openapi.Response("created", RoutineDetailSerializer)},
+        responses={
+            201: openapi.Response("created", RoutineDetailSerializer),
+            404: "'nth_day' cannot be larger than routine duration",
+        },
     ),
 )
 class RoutineDetailCreateView(generics.CreateAPIView):
     serializer_class = RoutineDetailSerializer
     queryset = RoutineDetail.objects.all()
 
-    def perform_create(self, serializer):
-        serializer.save(
-            routine_id=self.kwargs.get("pk", None),
-            survey_package_id=self.request.data.get("survey_package", None),
-        )
+    def create(self, request, *args, **kwargs):
+        routine_id = kwargs.get("pk")
+        try:
+            routine = get_object_or_404(Routine, id=routine_id)
+        except Http404:
+            raise InstanceNotFound("routine with the provided id does not exist")
+
+        duration = routine.duration
+
+        if request.data.get("nth_day") > duration:
+            raise InvalidInputException(
+                "'nth_day' cannot be larger than routine duration"
+            )
+
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(
+                routine_id=self.kwargs.get("pk", None),
+                survey_package_id=self.request.data.get("survey_package", None),
+            )
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @method_decorator(
@@ -292,7 +311,7 @@ class WorkspaceAddSurveyPackageView(generics.CreateAPIView):
 
         survey_package_ids = request.data.get("survey_packages")
         if type(survey_package_ids) != list:
-            raise ValidationError("'survey_packages' must be an array")
+            raise InvalidInputException("'survey_packages' must be an array")
 
         service = WorkspaceService(workspace)
         workspace = service.add_survey_packages(survey_package_ids)

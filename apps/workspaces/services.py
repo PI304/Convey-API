@@ -2,7 +2,6 @@ from typing import List, Union
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import ValidationError
 
 from apps.survey_packages.models import SurveyPackage
 from apps.workspaces.models import Routine, Workspace, WorkspaceComposition
@@ -10,7 +9,7 @@ from apps.workspaces.serializers import (
     RoutineDetailSerializer,
     WorkspaceCompositionSerializer,
 )
-from config.exceptions import InstanceNotFound, ConflictException
+from config.exceptions import InstanceNotFound, ConflictException, InvalidInputException
 
 
 class RoutineService(object):
@@ -24,7 +23,7 @@ class RoutineService(object):
         for r in routine_details:
             survey_package_id = r.get("survey_package", None)
             if not survey_package_id:
-                raise ValidationError(
+                raise InvalidInputException(
                     "survey package id should be provided for all routine details"
                 )
             try:
@@ -58,7 +57,7 @@ class WorkspaceService(object):
             try:
                 package = get_object_or_404(SurveyPackage, id=pid)
             except Http404:
-                raise ValidationError(f"invalid package id: {pid}")
+                raise InstanceNotFound(f"invalid package id: {pid}")
 
             try:
                 existing_composition = get_object_or_404(

@@ -7,7 +7,6 @@ from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, permissions
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404 as _get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -27,7 +26,11 @@ from apps.survey_packages.serializers import (
 from apps.survey_packages.services import SurveyPackageService
 from apps.surveys.models import SectorQuestion, Survey, SurveySector
 from apps.workspaces.models import Routine, Workspace
-from config.exceptions import InstanceNotFound, UnprocessableException
+from config.exceptions import (
+    InstanceNotFound,
+    UnprocessableException,
+    InvalidInputException,
+)
 from config.permissions import AdminOnly, IsAuthorOrReadOnly
 
 
@@ -92,7 +95,7 @@ class SurveyPackageListView(generics.ListCreateAPIView):
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         if "contacts" in request.data and type(request.data["contacts"]) != list:
-            raise ValidationError("'contacts' field must be a list")
+            raise InvalidInputException("'contacts' field must be a list")
 
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -203,7 +206,7 @@ class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
     )
     def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         if "contacts" in request.data and type(request.data["contacts"]) != list:
-            raise ValidationError("'contacts' field must be a list")
+            raise InvalidInputException("'contacts' field must be a list")
 
         instance = self.get_object()
         serializer = SimpleSurveyPackageSerializer(
@@ -274,7 +277,7 @@ class KickOffSurveyView(generics.RetrieveAPIView):
         code = self.request.GET.get("code", None)
 
         if not (key and code):
-            raise ValidationError("'key' and 'code'should be set in query string")
+            raise InvalidInputException("'key' and 'code'should be set in query string")
 
         uuid = key[:22]
         subject_id = key[22:]

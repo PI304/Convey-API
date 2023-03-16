@@ -21,7 +21,9 @@ class PackageContactSerializer(serializers.ModelSerializer):
 
     def validate_type(self, value):
         if value not in PackageContact.ContactType.values:
-            raise ValidationError("contact type must be either 'email' or 'phone'")
+            raise InvalidInputException(
+                "contact type must be either 'email' or 'phone'"
+            )
 
         return value
 
