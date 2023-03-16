@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
-from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,7 +26,7 @@ from apps.workspaces.serializers import (
     WorkspaceCompositionSerializer,
     RoutineSerializer,
 )
-from config.exceptions import InstanceNotFound
+from config.exceptions import InstanceNotFound, InvalidInputException
 from config.permissions import AdminOnly
 
 
@@ -91,7 +90,7 @@ class SurveyPackageAnswerCreateView(generics.CreateAPIView):
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         key = request.data.get("key")
         if key is None:
-            raise ValidationError("key is required")
+            raise InvalidInputException("key is required")
 
         workspace_uuid = key[:22]
         respondent_id = key[22:]
@@ -132,10 +131,10 @@ class SurveyPackageAnswerDownloadView(APIView):
         workspace_query: str = self.request.GET.get("workspace", None)
 
         if workspace_query is None:
-            raise ValidationError("workspace id not set in query string")
+            raise InvalidInputException("workspace id not set in query string")
 
         if not workspace_query.isnumeric():
-            raise ValidationError("workspace must be in number format")
+            raise InvalidInputException("workspace must be in number format")
 
         workspace_id = int(workspace_query)
 

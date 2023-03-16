@@ -2,7 +2,6 @@ from typing import Union
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import ValidationError
 
 from apps.survey_packages.models import Respondent
 from apps.survey_packages.serializers import RespondentSerializer
@@ -19,7 +18,7 @@ from apps.surveys.serializers import (
     QuestionAnswerSerializer,
 )
 from apps.users.models import User
-from config.exceptions import InstanceNotFound, ConflictException
+from config.exceptions import InstanceNotFound, ConflictException, InvalidInputException
 
 
 class SurveyService(object):
@@ -87,7 +86,7 @@ class SurveyService(object):
         # Create Questions and associate with survey sector
         questions_list_data: list[dict] = data.get("questions", None)
         if not questions_list_data:
-            raise ValidationError("'questions' field is required")
+            raise InvalidInputException("'questions' field is required")
 
         for q in questions_list_data:
             self._make_question(q, sector.id)
@@ -109,7 +108,7 @@ class QuestionAnswerService(object):
 
     def create_answers(self, answers_list: list[dict]) -> list[QuestionAnswer]:
         if type(answers_list) != list:
-            raise ValidationError("'answers' should be an array")
+            raise InvalidInputException("'answers' should be an array")
 
         answers: list[QuestionAnswer] = []
         for a in answers_list:

@@ -10,7 +10,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from rest_framework.exceptions import AuthenticationFailed, NotFound, ValidationError
+from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
@@ -20,6 +20,7 @@ from config.exceptions import (
     DuplicateInstance,
     UnprocessableException,
     ConflictException,
+    InvalidInputException,
 )
 from config.renderer import CustomRenderer
 from .models import User
@@ -70,7 +71,7 @@ class BasicSignUpView(APIView):
         confirm_password = request.data.get("confirm_password")
 
         if password != confirm_password:
-            raise ValidationError("Passwords doesn't match")
+            raise UnprocessableException("Passwords doesn't match")
 
         # check duplicate email
         try:
@@ -218,7 +219,7 @@ class PasswordChangeView(APIView):
         new_password = request.data.get("new_password")
 
         if current_password == new_password:
-            raise ValidationError(
+            raise InvalidInputException(
                 "new password should be different from the old password"
             )
 
@@ -451,7 +452,7 @@ class AppSignInView(APIView):
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         if len(request.data) != 3:
-            raise ValidationError(
+            raise InvalidInputException(
                 "body should include 'name', 'email' and 'socialProvider'"
             )
 
@@ -504,7 +505,7 @@ class AppSignUpView(APIView):
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         if len(request.data) != 4:
-            raise ValidationError(
+            raise InvalidInputException(
                 "body should include 'name', 'email', 'socialProvider' and 'privacyPolicyAgreed' fields"
             )
 

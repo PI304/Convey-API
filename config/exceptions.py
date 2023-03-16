@@ -53,6 +53,18 @@ class InternalServerError(APIException):
             self.detail = detail
 
 
+class InvalidInputException(APIException):
+    status_code = 400
+    default_detail = "invalid input"
+    default_code = "bad_request"
+
+    def __init__(self, detail=None):
+        if detail is None:
+            self.detail = self.default_detail
+        else:
+            self.detail = detail
+
+
 class UnprocessableException(APIException):
     status_code = 422
     default_detail = "unprocessable"
@@ -107,7 +119,7 @@ def custom_exception_handler(exc, context):
         else:
             customized_response = {
                 "code": response.status_code,
-                "detail": response.data,
+                "detail": response.data["detail"],
             }
 
         response.data = customized_response
