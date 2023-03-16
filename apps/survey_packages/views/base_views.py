@@ -54,9 +54,10 @@ class SurveyPackageListView(generics.ListCreateAPIView):
 
     @swagger_auto_schema(
         operation_summary="기본 정보만이 채워진 빈 설문 패키지를 만듭니다",
-        operation_description="multipart/form-data 로 전송합니다",
+        operation_description="logo 첨부 시, multipart/form-data 로 전송합니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["title", "description", "access_code", "manager", "contacts"],
             properties={
                 "title": openapi.Schema(
                     type=openapi.TYPE_STRING,

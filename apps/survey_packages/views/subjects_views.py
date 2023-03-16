@@ -74,6 +74,7 @@ class PackageSubjectListView(generics.ListCreateAPIView):
         ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["number", "title"],
             properties={
                 "number": openapi.Schema(
                     type=openapi.TYPE_INTEGER,

@@ -3,7 +3,7 @@ from typing import Any
 import shortuuid
 from django.db.models import QuerySet
 from django.http import Http404
-from django.shortcuts import get_object_or_404, get_list_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework.generics import get_object_or_404 as _get_object_or_404
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
@@ -25,7 +25,12 @@ from apps.workspaces.serializers import (
     RoutineDetailSerializer,
 )
 from apps.workspaces.services import RoutineService, WorkspaceService
-from config.exceptions import InstanceNotFound, ConflictException, InvalidInputException
+from config.exceptions import (
+    InstanceNotFound,
+    ConflictException,
+    InvalidInputException,
+    DuplicateInstance,
+)
 from config.permissions import IsOwnerOrReadOnly
 
 
@@ -133,6 +138,7 @@ class RoutineView(
         operation_summary="workspace 에 대응하는 루틴을 만듭니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["duration", "kick_off"],
             properties={
                 "duration": openapi.Schema(
                     type=openapi.TYPE_INTEGER, description="킥오프 서베이 이후부터의 루틴 날짜 수"
@@ -200,7 +206,7 @@ class RoutineView(
 
         # Create Routine Details
         routine_details = request.data.get("routines", None)
-        if routine_details:
+        if routine_details is not None:
             routine = routine_service.add_routine_details(routine_details)
             routine.refresh_from_db()
             return Response(
@@ -221,6 +227,7 @@ class RoutineView(
         ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=["nth_day", "time", "survey_pacakge"],
             properties={
                 "nth_day": openapi.Schema(
                     type=openapi.TYPE_INTEGER, description="n번째 날"
@@ -250,6 +257,20 @@ class RoutineDetailCreateView(generics.CreateAPIView):
             routine = get_object_or_404(Routine, id=routine_id)
         except Http404:
             raise InstanceNotFound("routine with the provided id does not exist")
+
+        try:
+            existing_routine_detail = get_object_or_404(
+                RoutineDetail,
+                nth_day=request.data.get("nth_day", None),
+                time=request.data.get("time", None),
+            )
+            if existing_routine_detail is not None:
+                raise DuplicateInstance(
+                    "routine detail with the same nth_day and time already exists"
+                )
+
+        except Http404:
+            pass
 
         duration = routine.duration
 
