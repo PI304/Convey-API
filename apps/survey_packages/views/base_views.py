@@ -1,8 +1,11 @@
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 from django.db.models import QuerySet, Prefetch
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from datetime import datetime
+
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -23,7 +26,10 @@ from apps.survey_packages.serializers import (
     SurveyPackageSerializer,
     SimpleSurveyPackageSerializer,
 )
-from apps.survey_packages.services import SurveyPackageService
+from apps.survey_packages.services import (
+    SurveyPackageService,
+    SurveyPackageExportService,
+)
 from apps.surveys.models import SectorQuestion, Survey, SurveySector
 from apps.workspaces.models import Routine, Workspace
 from config.exceptions import (
@@ -333,3 +339,50 @@ class KickOffSurveyView(generics.RetrieveAPIView):
         return _get_object_or_404(
             self.get_queryset(), id=associated_routine.kick_off_id
         )
+
+
+class SurveyPackageDownloadView(APIView):
+    serializer_class = SurveyPackageSerializer
+    queryset = SurveyPackage.objects.all()
+
+    @swagger_auto_schema(
+        operation_summary="survey package 의 문항 구성을 엑셀 형태로 다운로드 합니다",
+        manual_parameters=[
+            openapi.Parameter(
+                "id",
+                openapi.IN_PATH,
+                description="survey package id",
+                type=openapi.TYPE_INTEGER,
+                required=True,
+            ),
+        ],
+        responses={204: "download success"},
+    )
+    def get(self, request, pk, format=None) -> HttpResponse:
+        try:
+            survey_package = get_object_or_404(SurveyPackage, id=pk)
+        except Http404:
+            raise InstanceNotFound("survey package for the provided id does not exist")
+
+        service = SurveyPackageExportService(survey_package.id)
+
+        package_name = survey_package.title
+        package_name = package_name.replace(" ", "_")
+
+        wb = service.export_to_workbook()
+
+        with NamedTemporaryFile() as tmp:
+            wb.save(tmp.name)
+            tmp.seek(0)
+            stream = tmp.read()
+
+        response = HttpResponse(
+            content=stream,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            status=204,
+        )
+        response.headers[
+            "Content-Disposition"
+        ] = f'attachment; filename={package_name}-{datetime.now().strftime("%Y%m%d%H%M")}.xlsx'
+
+        return response

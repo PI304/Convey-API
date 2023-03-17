@@ -16,6 +16,11 @@ urlpatterns: list[URLPattern] = [
         name="survey_packages_details",
     ),
     path(
+        "/<int:pk>/download",
+        base_views.SurveyPackageDownloadView.as_view(),
+        name="survey_packages_download",
+    ),
+    path(
         "/<int:pk>/answers",
         answers_views.SurveyPackageAnswerCreateView.as_view(),
         name="survey_package_answers_list",
