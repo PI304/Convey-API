@@ -119,7 +119,7 @@ def custom_exception_handler(exc, context):
         else:
             customized_response = {
                 "code": response.status_code,
-                "detail": response.data["detail"],
+                "detail": response.data,
             }
 
         response.data = customized_response
