@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from apps.surveys.models import (
     Survey,
@@ -32,6 +33,12 @@ class QuestionChoiceSerializer(serializers.ModelSerializer):
         model = QuestionChoice
         fields = "__all__"
         read_only_fields = ["id", "created_at", "updated_at"]
+
+    def validate(self, obj):
+        if obj.get("is_descriptive") and (obj.get("desc_form", None) is None):
+            raise ValidationError(
+                "desc_form must not be null if is_descriptive is set true"
+            )
 
 
 class SectorQuestionSerializer(serializers.ModelSerializer):
