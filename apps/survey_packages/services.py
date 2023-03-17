@@ -252,3 +252,131 @@ class ResponseExportService(object):
             self._add_part_data(part)
 
         return self.workbook
+
+
+class SurveyPackageExportService(object):
+    def __init__(self, survey_package_id: int):
+        self.survey_package_id = survey_package_id
+        self.workbook = None
+        self.worksheet = None
+
+    def _get_queryset(self):
+        return PackagePart.objects.filter(
+            survey_package_id=self.survey_package_id
+        ).prefetch_related(
+            Prefetch(
+                "subjects",
+                queryset=PackageSubject.objects.prefetch_related(
+                    Prefetch(
+                        "surveys",
+                        queryset=PackageSubjectSurvey.objects.select_related(
+                            "survey"
+                        ).prefetch_related(
+                            Prefetch(
+                                "survey__sectors",
+                                queryset=SurveySector.objects.prefetch_related(
+                                    "common_choices",
+                                    Prefetch(
+                                        "questions",
+                                        queryset=SectorQuestion.objects.prefetch_related(
+                                            "choices"
+                                        ),
+                                    ),
+                                ),
+                            )
+                        ),
+                    )
+                ),
+            )
+        )
+
+    def _create_worksheet_template(self) -> None:
+        wb: Workbook = Workbook()
+        self.workbook = wb
+        ws: Worksheet = wb.active
+        self.worksheet = ws
+
+        self.worksheet.append(
+            ["구분", "대주제", "소주제", "문제유형", "연결섹터여부", "공통선지", "문항번호", "문항내용", "문항선지"]
+        )
+
+    def _add_row(self, row_data: dict):
+        self.worksheet.append(list(row_data.values()))
+        print("appended row")
+
+    def _add_question(self, question_data: SectorQuestion, row_data: dict):
+        row_data = dict(
+            **row_data,
+            question_number=question_data.number,
+            question_content=question_data.content,
+        )
+
+        question_choices = question_data.choices.all()
+
+        question_choice_str = ""
+        if question_choices is not None or question_data.choices.count() != 0:
+            for choice in question_data.choices.all():
+                content = ""
+                if choice.content is not None:
+                    content += choice.content
+                if choice.is_descriptive:
+                    content += choice.desc_form
+
+                content = content.replace("%d", "[숫자]")
+                content = content.replace("%s", "[문자]")
+
+                question_choice_str += f"{choice.number}. {content}/"
+            question_choice_str = question_choice_str[:-1]
+
+        row_data["question_choices"] = question_choice_str
+        self._add_row(row_data)
+
+    def _add_sector(self, sector: SurveySector, row_data: dict):
+        row_data = dict(**row_data, question_type=sector.question_type)
+        if sector.is_linked is True:
+            row_data["is_linked"] = "Y"
+        else:
+            row_data["is_linked"] = "N"
+
+        common_choices_str = ""
+        if sector.common_choices is not None:
+            for common_choice in sector.common_choices.all():
+                common_choices_str += (
+                    f"{common_choice.number}. {common_choice.content}/"
+                )
+            common_choices_str = common_choices_str[:-1]
+
+        row_data["common_choices"] = common_choices_str
+
+        for question in sector.questions.all():
+            self._add_question(question, row_data)
+
+    def _add_subject_survey(self, subject_survey: PackageSubjectSurvey, row_data: dict):
+        if subject_survey.title is not None:
+            row_data = dict(**row_data, subject_survey_title=subject_survey.title)
+        else:
+            row_data = dict(**row_data, subject_survey_title="")
+
+        survey = subject_survey.survey
+
+        for sector in survey.sectors.all():
+            self._add_sector(sector, row_data)
+
+    def _add_subject(self, subject: PackageSubject, part_title: str):
+        row_data = dict(part_title=part_title, subject_title=subject.title)
+        for subject_survey in subject.surveys.all():
+            self._add_subject_survey(subject_survey, row_data)
+
+    def _add_part(self, part_data: PackagePart):
+        title = part_data.title
+        for subject in part_data.subjects.all():
+            self._add_subject(subject, title)
+
+    def export_to_workbook(self):
+        self._create_worksheet_template()
+        queryset = self._get_queryset()
+
+        for part in queryset:
+            self._add_part(part)
+
+        return self.workbook
