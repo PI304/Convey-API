@@ -39,6 +39,7 @@ class QuestionChoiceSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 "desc_form must not be null if is_descriptive is set true"
             )
+        return obj
 
 
 class SectorQuestionSerializer(serializers.ModelSerializer):

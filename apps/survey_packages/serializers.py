@@ -11,6 +11,7 @@ from apps.survey_packages.models import (
 )
 from apps.surveys.serializers import SurveySerializer
 from apps.users.serializers import UserSerializer
+from config.exceptions import InvalidInputException
 
 
 class PackageContactSerializer(serializers.ModelSerializer):
