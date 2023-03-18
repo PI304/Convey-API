@@ -259,20 +259,7 @@ class SurveyPackageDetailView(generics.RetrieveUpdateDestroyAPIView):
                 required=True,
             ),
         ],
-        responses={
-            200: openapi.Schema(
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    "workspace": openapi.Schema(
-                        type=openapi.TYPE_INTEGER, description="워크스페이스 id"
-                    ),
-                    "survey_package": openapi.Schema(
-                        type=openapi.TYPE_OBJECT,
-                        description="/survey-packages/{id}/ 응답과 동일",
-                    ),
-                },
-            )
-        },
+        responses={200: openapi.Response("ok", SurveyPackageSerializer)},
     ),
 )
 class KickOffSurveyView(generics.RetrieveAPIView):
