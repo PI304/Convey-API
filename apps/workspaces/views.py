@@ -258,6 +258,20 @@ class RoutineDetailCreateView(generics.CreateAPIView):
         except Http404:
             raise InstanceNotFound("routine with the provided id does not exist")
 
+        duration = routine.duration
+        nth_day = request.data.get("nth_day", None)
+
+        if nth_day is None:
+            raise InvalidInputException("'nth_day' field is required")
+
+        if nth_day == 0:
+            raise InvalidInputException("'nth_day' cannot be 0")
+
+        if nth_day > duration:
+            raise InvalidInputException(
+                "'nth_day' cannot be larger than routine duration"
+            )
+
         try:
             existing_routine_detail = get_object_or_404(
                 RoutineDetail,
@@ -271,13 +285,6 @@ class RoutineDetailCreateView(generics.CreateAPIView):
 
         except Http404:
             pass
-
-        duration = routine.duration
-
-        if request.data.get("nth_day") > duration:
-            raise InvalidInputException(
-                "'nth_day' cannot be larger than routine duration"
-            )
 
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
