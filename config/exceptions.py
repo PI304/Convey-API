@@ -2,7 +2,7 @@ from django.core.exceptions import BadRequest
 from rest_framework.views import exception_handler
 from rest_framework import exceptions
 from django.http import Http404
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, ValidationError
 
 
 class InstanceNotFound(APIException):
@@ -115,6 +115,10 @@ def custom_exception_handler(exc, context):
         elif isinstance(exc, InstanceNotFound):
             customized_response = {"code": response.status_code, "detail": exc.detail}
         elif isinstance(exc, DuplicateInstance):
+            customized_response = {"code": response.status_code, "detail": exc.detail}
+        elif isinstance(exc, ValidationError):
+            customized_response = {"code": response.status_code, "detail": exc.detail}
+        elif isinstance(exc, InvalidInputException):
             customized_response = {"code": response.status_code, "detail": exc.detail}
         else:
             customized_response = {
