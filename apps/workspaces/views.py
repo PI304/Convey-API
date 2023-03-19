@@ -30,6 +30,7 @@ from config.exceptions import (
     ConflictException,
     InvalidInputException,
     DuplicateInstance,
+    UnprocessableException,
 )
 from config.permissions import IsOwnerOrReadOnly
 
@@ -264,9 +265,6 @@ class RoutineDetailCreateView(generics.CreateAPIView):
         if nth_day is None:
             raise InvalidInputException("'nth_day' field is required")
 
-        if nth_day == 0:
-            raise InvalidInputException("'nth_day' cannot be 0")
-
         if nth_day > duration:
             raise InvalidInputException(
                 "'nth_day' cannot be larger than routine duration"
@@ -277,6 +275,7 @@ class RoutineDetailCreateView(generics.CreateAPIView):
                 RoutineDetail,
                 nth_day=request.data.get("nth_day", None),
                 time=request.data.get("time", None),
+                routine_id=routine_id,
             )
             if existing_routine_detail is not None:
                 raise DuplicateInstance(
@@ -365,6 +364,7 @@ class WorkspaceDestroySurveyPackageView(generics.DestroyAPIView):
 
     @swagger_auto_schema(
         operation_summary="워크스페이스에서 설문 패키지를 제거합니다",
+        operation_description="워크스페이스 루틴에 패키지가 걸려있다면, 삭제할 수 없습니다",
         manual_parameters=[
             openapi.Parameter(
                 "id",
@@ -383,6 +383,19 @@ class WorkspaceDestroySurveyPackageView(generics.DestroyAPIView):
     )
     def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         instance: WorkspaceComposition = self.get_object()
+
+        related_routine_details = RoutineDetail.objects.select_related(
+            "routine"
+        ).filter(
+            routine__workspace_id=instance.workspace_id,
+            survey_package_id=instance.survey_package_id,
+        )
+
+        if related_routine_details:
+            raise UnprocessableException(
+                "cannot exclude a survey package already linked to a routine"
+            )
+
         workspace = get_object_or_404(Workspace, id=instance.workspace_id)
         instance.delete()
 
