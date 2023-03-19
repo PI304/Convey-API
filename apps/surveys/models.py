@@ -32,8 +32,8 @@ class SurveySector(TimeStampMixin):
 
     id = models.BigAutoField(primary_key=True)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="sectors")
-    title = models.CharField(max_length=50, null=True)
-    description = models.CharField(max_length=200, null=True)
+    instruction = models.CharField(max_length=500, null=True)
+    description = models.CharField(max_length=500, null=True)
     question_type = models.CharField(
         null=False, choices=QuestionType.choices, max_length=15
     )
