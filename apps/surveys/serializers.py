@@ -68,7 +68,7 @@ class SurveySectorSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "survey",
-            "title",
+            "instruction",
             "description",
             "question_type",
             "common_choices",

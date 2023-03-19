@@ -67,7 +67,7 @@ class SurveyService(object):
     def _create_sector(self, data: dict) -> SurveySector:
         # Create base SurveySector
         sector_data = dict(
-            title=data.get("title", None),
+            instruction=data.get("instruction", None),
             description=data.get("description", None),
             question_type=data.get("question_type", None),
             is_linked=data.get("is_linked", None),

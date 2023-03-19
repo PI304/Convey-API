@@ -1,6 +1,6 @@
 [
   {
-    "title": "sector 1 title",
+    "instruction": "sector 1 instructions",
     "description": "sector 1",
     "question_type": "likert",
     "is_linked": false,
@@ -55,7 +55,7 @@
     ]
   },
   {
-    "title": "sector 2 title",
+    "instruction": "sector 2 instruction",
     "description": "sector 2",
     "question_type": "short_answer",
     "is_linked": false,

@@ -69,25 +69,6 @@ class SurveyListView(generics.ListCreateAPIView):
     ),
 )
 @method_decorator(
-    name="patch",
-    decorator=swagger_auto_schema(
-        operation_summary="설문의 기본 정보를 수정합니다",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "title": openapi.Schema(type=openapi.TYPE_STRING, description="설문 제목"),
-                "description": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="설문 설명"
-                ),
-                "abbr": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="abbreviation"
-                ),
-            },
-        ),
-        responses={200: openapi.Response("updated", SimpleSurveySerializer)},
-    ),
-)
-@method_decorator(
     name="delete",
     decorator=swagger_auto_schema(
         operation_summary="설문을 완전히 삭제합니다. 응답을 포함한 관련된 모든 하위 데이터들이 삭제됩니다",
@@ -127,11 +108,12 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
                 type=openapi.TYPE_OBJECT,
                 required=["is_linked", "question_type", "questions"],
                 properties={
-                    "title": openapi.Schema(
-                        type=openapi.TYPE_STRING, description="sector 제목"
+                    "instruction": openapi.Schema(
+                        type=openapi.TYPE_STRING, description="sector 의 지시문, 최대 길이 500"
                     ),
                     "description": openapi.Schema(
-                        type=openapi.TYPE_STRING, description="sector 에 더해질 설명"
+                        type=openapi.TYPE_STRING,
+                        description="sector 에 더해질 설명, 최대 길이 500",
                     ),
                     "is_linked": openapi.Schema(
                         type=openapi.TYPE_BOOLEAN,
@@ -209,6 +191,22 @@ class SurveyDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        operation_summary="설문의 기본 정보를 수정합니다",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "title": openapi.Schema(type=openapi.TYPE_STRING, description="설문 제목"),
+                "description": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="설문 설명"
+                ),
+                "abbr": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="abbreviation"
+                ),
+            },
+        ),
+        responses={200: openapi.Response("updated", SimpleSurveySerializer)},
+    )
     def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         instance = self.get_object()
         serializer = SimpleSurveySerializer(instance, data=request.data, partial=True)
