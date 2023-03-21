@@ -165,6 +165,7 @@ class ResponseExportService(object):
                     f"{col_letter}1"
                 ] = f"{prefix}-{formatted_question_number}"
 
+            print(self.respondents, question.answers.count())
             if len(self.respondents) != question.answers.count():
                 raise InternalServerError()
 
@@ -189,7 +190,7 @@ class ResponseExportService(object):
             self._col_num += 1
 
     def _add_survey_data(self, survey_data, prefix):
-        if survey_data.number:
+        if survey_data.number and survey_data.number != "":
             prefix = f"{prefix}-{survey_data.number}"
 
         survey = survey_data.survey

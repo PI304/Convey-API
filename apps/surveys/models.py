@@ -32,8 +32,8 @@ class SurveySector(TimeStampMixin):
 
     id = models.BigAutoField(primary_key=True)
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="sectors")
-    instruction = models.CharField(max_length=500, null=True)
-    description = models.CharField(max_length=500, null=True)
+    instruction = models.CharField(max_length=500, null=True, blank=True)
+    description = models.CharField(max_length=500, null=True, blank=True)
     question_type = models.CharField(
         null=False, choices=QuestionType.choices, max_length=15
     )
@@ -43,10 +43,10 @@ class SurveySector(TimeStampMixin):
         db_table = "survey_sector"
 
     def __str__(self):
-        return f"[{self.id}] {self.title}"
+        return f"[{self.id}] sector for {self.survey_id}"
 
     def __repr__(self):
-        return f"SurveySector({self.id}, {self.title})"
+        return f"SurveySector({self.id})"
 
 
 class SectorQuestion(TimeStampMixin):
