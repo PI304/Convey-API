@@ -128,7 +128,13 @@ class RespondentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Respondent
         fields = "__all__"
-        read_only_fields = ["id", "survey_package", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "survey_package",
+            "workspace",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class MiniSurveyPackageSerializer(serializers.ModelSerializer):

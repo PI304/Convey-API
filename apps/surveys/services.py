@@ -107,6 +107,7 @@ class QuestionAnswerService(object):
         self.respondent_id = respondent_id
 
     def create_answers(self, answers_list: list[dict]) -> list[QuestionAnswer]:
+        print(type(answers_list))
         if type(answers_list) != list:
             raise InvalidInputException("'answers' should be an array")
 
@@ -119,7 +120,7 @@ class QuestionAnswerService(object):
     def _create_answer(self, answer_data: dict) -> QuestionAnswer:
         question_id = answer_data.get("question_id")
         try:
-            question = get_object_or_404(QuestionAnswer, id=question_id)
+            question = get_object_or_404(SectorQuestion, id=question_id)
         except Http404:
             raise InstanceNotFound(f"question not found: {question_id}")
 
