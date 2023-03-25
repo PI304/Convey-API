@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -33,6 +33,7 @@ from config.permissions import AdminOnly
 class SurveyPackageAnswerCreateView(generics.CreateAPIView):
     queryset = QuestionAnswer.objects.all()
     serializer_class = QuestionAnswerSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
         tags=["survey-answer"],
@@ -105,7 +106,7 @@ class SurveyPackageAnswerCreateView(generics.CreateAPIView):
             workspace.id, kwargs.get("pk"), request.user, respondent_id
         )
 
-        answers = service.create_answers(request.data)
+        answers = service.create_answers(request.data.get("answers", None))
         service.record_respondent()
 
         serializer = self.get_serializer(answers, many=True)
