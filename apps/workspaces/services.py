@@ -22,25 +22,34 @@ class RoutineService(object):
     def add_routine_details(self, routine_details: List[dict]):
         for r in routine_details:
             survey_package_id = r.get("survey_package", None)
-            if not survey_package_id:
+            external_resource = r.get("external_resource", None)
+
+            if not survey_package_id and not external_resource:
                 raise InvalidInputException(
-                    "survey package id should be provided for all routine details"
-                )
-            try:
-                in_workspace = get_object_or_404(
-                    WorkspaceComposition,
-                    survey_package_id=survey_package_id,
-                    workspace_id=self.routine.workspace_id,
-                )
-            except Http404:
-                raise InstanceNotFound(
-                    f"survey package with the id {survey_package_id} does not exist or is not included in workspace"
+                    "either survey package id or external resource should be provided for all routine details"
                 )
 
-            del r["survey_package"]
-            s = RoutineDetailSerializer(data=r)
-            if s.is_valid(raise_exception=True):
-                s.save(survey_package_id=survey_package_id, routine_id=self.routine.id)
+            if survey_package_id is not None:
+                try:
+                    in_workspace = get_object_or_404(
+                        WorkspaceComposition,
+                        survey_package_id=survey_package_id,
+                        workspace_id=self.routine.workspace_id,
+                    )
+                except Http404:
+                    raise InstanceNotFound(
+                        f"survey package with the id {survey_package_id} does not exist or is not included in workspace"
+                    )
+
+                s = RoutineDetailSerializer(data=r)
+                if s.is_valid(raise_exception=True):
+                    s.save(
+                        survey_package_id=survey_package_id, routine_id=self.routine.id
+                    )
+            else:
+                s = RoutineDetailSerializer(data=r)
+                if s.is_valid(raise_exception=True):
+                    s.save(routine_id=self.routine.id)
 
         return self.routine
 
