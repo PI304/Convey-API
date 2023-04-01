@@ -1,3 +1,4 @@
+import datetime
 from typing import Any
 
 import shortuuid
@@ -108,19 +109,13 @@ class WorkspaceDetailView(generics.RetrieveDestroyAPIView):
 
 
 @method_decorator(
-    name="delete",
-    decorator=swagger_auto_schema(operation_summary="해당 workspace id 의 루틴을 삭제합니다"),
-)
-@method_decorator(
     name="get",
     decorator=swagger_auto_schema(
         operation_summary="해당 workspace id 의 루틴을 가져옵니다",
         responses={200: openapi.Response("ok", RoutineSerializer)},
     ),
 )
-class RoutineView(
-    generics.RetrieveAPIView, generics.CreateAPIView, generics.DestroyAPIView
-):
+class RoutineCreateView(generics.RetrieveAPIView, generics.CreateAPIView):
     serializer_class = RoutineSerializer
     queryset = Routine.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
@@ -153,6 +148,7 @@ class RoutineView(
                     description="서베이를 수행한 다음날부터의 루틴입니다",
                     items=openapi.Schema(
                         type=openapi.TYPE_OBJECT,
+                        required=["nth_day", "time"],
                         properties={
                             "nth_day": openapi.Schema(
                                 type=openapi.TYPE_INTEGER, description="n번째 날"
@@ -164,6 +160,9 @@ class RoutineView(
                             "survey_package": openapi.Schema(
                                 type=openapi.TYPE_INTEGER, description="응답할 설문 패키지의 id"
                             ),
+                            "external_resource": openapi.Schema(
+                                type=openapi.TYPE_STRING, description="외부 리소스 (링크)"
+                            ),
                         },
                     ),
                 ),
@@ -174,6 +173,11 @@ class RoutineView(
         },
     )
     def post(self, request: Request, *args: Any, **kwargs) -> Response:
+        try:
+            workspace = get_object_or_404(Workspace, id=kwargs.get("pk"))
+        except Http404:
+            raise InstanceNotFound("workspace with the provided id does not exist")
+
         try:
             existing_routine = self.get_object()
             if existing_routine:
@@ -199,8 +203,8 @@ class RoutineView(
 
         if routine_serializer.is_valid(raise_exception=True):
             routine_serializer.save(
-                workspace_id=kwargs.get("pk"),
-                kick_off_id=kick_off_package_id,
+                workspace_id=workspace.id,
+                kick_off_id=kick_off_package.id,
             )
 
         routine_service = RoutineService(routine_serializer.data.get("id"))
@@ -218,6 +222,74 @@ class RoutineView(
 
 
 @method_decorator(
+    name="delete",
+    decorator=swagger_auto_schema(operation_summary="해당 id 의 루틴을 삭제합니다"),
+)
+@method_decorator(
+    name="get",
+    decorator=swagger_auto_schema(
+        operation_summary="해당 id 의 루틴을 가져옵니다",
+        responses={200: openapi.Response("ok", RoutineSerializer)},
+    ),
+)
+class RoutineUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = RoutineSerializer
+    queryset = Routine.objects.all()
+    allowed_methods = ["PATCH", "GET", "DELETE"]
+
+    def get_queryset(self) -> QuerySet:
+        return self.queryset.prefetch_related("routines").all()
+
+    @swagger_auto_schema(
+        operation_summary="해당 id 의 루틴을 수정합니다",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            description="루틴의 duration 과 kickoff 서베이 패키지를 수정할 수 있습니다",
+            properties={
+                "duration": openapi.Schema(
+                    type=openapi.TYPE_INTEGER, description="킥오프 서베이 이후부터의 루틴 날짜 수"
+                ),
+                "kick_off": openapi.Schema(
+                    type=openapi.TYPE_INTEGER,
+                    description="kick off survey package 의 id",
+                ),
+            },
+        ),
+        responses={
+            200: openapi.Response("ok", RoutineSerializer),
+            404: "survey package with the provided id does not exist",
+            409: "duration cannot be shorter than existing routine details' max nth_day value",
+        },
+    )
+    def patch(self, request, *args, **kwargs):
+        instance: Routine = self.get_object()
+        routine_details_current_max = (
+            instance.routines.order_by("-nth_day").first().nth_day
+        )
+        new_duration = request.data.get("duration", None)
+        kick_off_id = request.data.get("kick_off", None)
+
+        if new_duration is not None and new_duration < routine_details_current_max:
+            raise ConflictException(
+                "duration cannot be shorter than existing routine details' max nth_day value"
+            )
+
+        if kick_off_id is not None:
+            try:
+                survey_package = get_object_or_404(SurveyPackage, id=kick_off_id)
+            except Http404:
+                raise InstanceNotFound(
+                    "survey package with the provided id does not exist"
+                )
+
+        serializer = self.get_serializer(instance, request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(updated_at=datetime.datetime.now())
+
+        return Response(serializer.data)
+
+
+@method_decorator(
     name="post",
     decorator=swagger_auto_schema(
         operation_summary="루틴에 세부 일정을 추가합니다",
@@ -228,7 +300,7 @@ class RoutineView(
         ],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["nth_day", "time", "survey_pacakge"],
+            required=["nth_day", "time"],
             properties={
                 "nth_day": openapi.Schema(
                     type=openapi.TYPE_INTEGER, description="n번째 날"
@@ -239,6 +311,9 @@ class RoutineView(
                 ),
                 "survey_package": openapi.Schema(
                     type=openapi.TYPE_INTEGER, description="응답할 설문 패키지의 id"
+                ),
+                "external_resource": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="외부 리소스 (링크)"
                 ),
             },
         ),
@@ -258,6 +333,14 @@ class RoutineDetailCreateView(generics.CreateAPIView):
             routine = get_object_or_404(Routine, id=routine_id)
         except Http404:
             raise InstanceNotFound("routine with the provided id does not exist")
+
+        survey_package_id = request.data.get("survey_package", None)
+        external_resource = request.data.get("external_resource", None)
+
+        if not survey_package_id and not external_resource:
+            raise InvalidInputException(
+                "either survey package id or external resource should be provided for all routine details"
+            )
 
         duration = routine.duration
         nth_day = request.data.get("nth_day", None)
@@ -286,11 +369,17 @@ class RoutineDetailCreateView(generics.CreateAPIView):
             pass
 
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(
-                routine_id=self.kwargs.get("pk", None),
-                survey_package_id=self.request.data.get("survey_package", None),
-            )
+        if survey_package_id is not None:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(
+                    routine_id=routine_id,
+                    survey_package_id=survey_package_id,
+                )
+        else:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(
+                    routine_id=routine_id,
+                )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

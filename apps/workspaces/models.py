@@ -69,7 +69,10 @@ class RoutineDetail(TimeStampMixin):
     )
     nth_day = models.PositiveSmallIntegerField(null=False)
     time = models.CharField(max_length=5, null=False)
-    survey_package = models.ForeignKey(SurveyPackage, on_delete=models.CASCADE)
+    survey_package = models.ForeignKey(
+        SurveyPackage, on_delete=models.CASCADE, null=True
+    )
+    external_resource = models.CharField(max_length=255, null=True)
 
     class Meta:
         db_table = "routine_detail"
