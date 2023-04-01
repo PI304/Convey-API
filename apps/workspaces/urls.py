@@ -2,17 +2,19 @@ from django.urls import path, URLPattern
 from apps.workspaces.views import (
     WorkspaceListView,
     WorkspaceDetailView,
-    RoutineView,
+    RoutineCreateView,
     RoutineDetailCreateView,
     RoutineDetailView,
     WorkspaceAddSurveyPackageView,
     WorkspaceDestroySurveyPackageView,
+    RoutineUpdateView,
 )
 
 urlpatterns: list[URLPattern] = [
     path("", WorkspaceListView.as_view(), name="workspace_list"),
+    path("/routines/<int:pk>", RoutineUpdateView.as_view(), name="routine_update"),
     path("/<int:pk>", WorkspaceDetailView.as_view(), name="workspace_details"),
-    path("/<int:pk>/routines", RoutineView.as_view(), name="routine"),
+    path("/<int:pk>/routines", RoutineCreateView.as_view(), name="routine"),
     path(
         "/<int:pk>/survey-packages/<int:survey_package_id>",
         WorkspaceDestroySurveyPackageView.as_view(),
