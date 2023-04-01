@@ -79,6 +79,7 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
             "nth_day",
             "time",
             "survey_package",
+            "external_resource",
             "created_at",
             "updated_at",
         ]
@@ -131,7 +132,14 @@ class RoutineSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "workspace", "routines", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "workspace",
+            "routines",
+            "kick_off",
+            "created_at",
+            "updated_at",
+        ]
 
     def validate_duration(self, value) -> int:
         if value <= 0:
