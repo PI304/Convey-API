@@ -23,6 +23,7 @@ from config.exceptions import (
     InvalidInputException,
 )
 from config.renderer import CustomRenderer
+from utils.body_encryption import AESCipher
 from .models import User
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -436,14 +437,14 @@ class AppSignInView(APIView):
 
     @swagger_auto_schema(
         operation_summary="앱 사용자를 위한 로그인",
+        operation_description="AES256 방식을 사용하여 body 를 통째로 암호화 합니다.",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["name", "email", "social_provider"],
+            required=["data"],
             properties={
-                "name": openapi.Schema(type=openapi.TYPE_STRING),
-                "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "social_provider": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="소셜 로그인 플랫폼 ex) kakao"
+                "data": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="name, email, socialProvider 를 담고 있는 Json 을 통째로 암호화하여 보냅니다",
                 ),
             },
         ),
@@ -457,13 +458,15 @@ class AppSignInView(APIView):
         },
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        if len(request.data) != 3:
+        decrypted_data = UserService.decrypt_body(request.data)
+
+        if len(decrypted_data) != 3:
             raise InvalidInputException(
                 "body should include 'name', 'email' and 'socialProvider'"
             )
 
         try:
-            user = get_object_or_404(User, **request.data)
+            user = get_object_or_404(User, **decrypted_data)
         except Http404:
             raise AuthenticationFailed("No user with the provided data")
 
@@ -496,21 +499,19 @@ class AppSignUpView(APIView):
         operation_summary="앱 사용자들을 위한 회원가입, 회원의 정보를 보냅니다",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["name", "email", "social_provider", "privacy_policy_agreed"],
+            required=["data"],
             properties={
-                "name": openapi.Schema(type=openapi.TYPE_STRING),
-                "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "social_provider": openapi.Schema(
-                    type=openapi.TYPE_STRING, description="소셜 로그인 플랫폼 ex) kakao"
-                ),
-                "privacy_policy_agreed": openapi.Schema(
-                    type=openapi.TYPE_BOOLEAN, description="개인정보동의 여부"
+                "data": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="name, email, socialProvider, privacyPolicyAgreed 필드를 담고 있는 Json 을 통째로 암호화하여 보냅니다",
                 ),
             },
         ),
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        if len(request.data) != 4:
+        decrypted_data = UserService.decrypt_body(request.data)
+
+        if len(decrypted_data) != 4:
             raise InvalidInputException(
                 "body should include 'name', 'email', 'socialProvider' and 'privacyPolicyAgreed' fields"
             )
@@ -518,17 +519,15 @@ class AppSignUpView(APIView):
         # check duplicate email
         try:
             existing_user = get_object_or_404(
-                User, email=request.data.get("email"), role=User.UserType.SUBJECT
+                User, email=decrypted_data.get("email"), role=User.UserType.SUBJECT
             )
             raise DuplicateInstance(
                 "app user with the provided email already exists, check other social provider?"
             )
         except Http404:
-            data = request.data
-            data["role"] = User.UserType.SUBJECT.value
-            data["password"] = "00000000"
-            print(data)
-            serializer = UserSerializer(data=data)
+            decrypted_data["role"] = User.UserType.SUBJECT.value
+            decrypted_data["password"] = "00000000"
+            serializer = UserSerializer(data=decrypted_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
 
