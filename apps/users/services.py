@@ -1,3 +1,4 @@
+import json
 import string
 import random
 
@@ -9,6 +10,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
+from utils.body_encryption import AESCipher
 
 
 class UserService(object):
@@ -45,3 +47,24 @@ class UserService(object):
                 random.choice(string.ascii_letters + string.digits)
                 for _ in range(length_of_string)
             )
+
+    @staticmethod
+    def decrypt_body(json_data: str) -> dict:
+        cipher = AESCipher()
+        request_data = json_data.get("data", None)
+        data_bytes = request_data.encode()
+        hex_data = data_bytes[2:-1]
+
+        data_json: str = cipher.decrypt(hex_data)
+        decrypted_data = json.loads(data_json)
+
+        decrypted_data["social_provider"] = decrypted_data["socialProvider"]
+        del decrypted_data["socialProvider"]
+
+        if "privacyPolicyAgreed" in decrypted_data:
+            decrypted_data["privacy_policy_agreed"] = decrypted_data[
+                "privacyPolicyAgreed"
+            ]
+            del decrypted_data["privacyPolicyAgreed"]
+
+        return decrypted_data
