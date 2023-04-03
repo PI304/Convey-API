@@ -34,7 +34,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["3.34.67.68"]
+ALLOWED_HOSTS = ["3.34.67.68", "api.convey.works", "convey.works"]
 
 
 # Application definition
