@@ -1,6 +1,6 @@
 from .base import *
 
-# DEBUG = False
+DEBUG = False
 ALLOWED_HOSTS = [
     "3.34.67.68",
     "localhost",

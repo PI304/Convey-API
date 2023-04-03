@@ -35,7 +35,13 @@ services:
       container_name: convey-nginx
       ports:
         - "80:80"
+        - "443:433"
       restart: always
+      volumes:
+        - ./certbot/conf:/etc/nginx/ssl
+        - ./certbot/data:/var/www/letsencrypt
+      depends_on:
+        - api
 
 volumes:
   convey-mysql:
