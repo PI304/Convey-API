@@ -9,8 +9,8 @@ load_dotenv()
 class AESCipher(object):
     def __init__(self):
         self.bs = AES.block_size
-        self.key = bytes.fromhex(os.environ.get("AES256_KEY_HEX"))
-        self.iv = bytes.fromhex(os.environ.get("AES256_IV_HEX"))
+        self.key = bytes(os.environ.get("AES256_KEY"), "utf-8")
+        self.iv = bytes(os.environ.get("AES256_IV"), "utf-8")
 
     def encrypt(self, raw):
         raw = self._pad(raw)
