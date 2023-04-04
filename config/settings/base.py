@@ -75,7 +75,7 @@ MIDDLEWARE = [
     "silk.middleware.SilkyMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://13.209.218.50"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://13.209.218.50", "https://convey.works", "https://www.concey.works"]
 CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "config.urls"
@@ -98,12 +98,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.debug.application"
 
-# SESSION
-CSRF_USE_SESSIONS = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_SAMESITE = None
+# Cookie
+SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_HTTPONLY = True
 
 # Auth
 AUTH_USER_MODEL = "users.User"
