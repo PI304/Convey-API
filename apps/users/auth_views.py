@@ -141,6 +141,9 @@ class BasicSignInView(APIView):
             settings.SIMPLE_JWT["AUTH_COOKIE"],
             refresh_token,
             max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
+            httponly=True,
+            secure=True
+            samesite=None
         )  # 7 days
         return res
 
@@ -194,7 +197,14 @@ class CheckDuplicateUsernameView(APIView):
             raise DuplicateInstance("Provided email already exists")
 
         res = Response({"email": email}, status=status.HTTP_200_OK)
-        res.set_cookie("email_duplication_check", "complete", max_age=3600)
+        res.set_cookie(
+            "email_duplication_check",
+            "complete", 
+            max_age=3600,
+            httponly=True,
+            secure=True
+            samesite=None
+        )
 
         return res
 
@@ -310,7 +320,14 @@ class EmailVerification(APIView):
 
         # set code in cookie
         res = Response({"detail": "email sent"}, status=status.HTTP_200_OK)
-        res.set_cookie("email_verification_code", signed_cookie_obj, max_age=300)
+        res.set_cookie(
+            "email_verification_code", 
+            signed_cookie_obj,
+            max_age=300,
+            httponly=True,
+            secure=True
+            samesite=None
+        )
 
         # send email
         email = EmailMessage(
@@ -362,7 +379,14 @@ class EmailConfirmation(APIView):
             res = Response(status=status.HTTP_204_NO_CONTENT)
             if "email_confirmation_code" in request.COOKIES:
                 res.delete_cookie("email_verification_code")
-            res.set_cookie("email_confirmation", "complete", max_age=600)
+            res.set_cookie(
+                "email_confirmation", 
+                "complete", 
+                max_age=600,
+                httponly=True,
+                secure=True
+                samesite=None
+            )
             return res
         else:
             raise ConflictException("Verification code does not match")
@@ -424,7 +448,10 @@ class TokenRefreshView(APIView):
                 res.set_cookie(
                     settings.SIMPLE_JWT["AUTH_COOKIE"],
                     new_refresh,
-                    max_age=60 * 60 * 24 * 14,
+                    max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
+                    httponly=True,
+                    secure=True
+                    samesite=None
                 )  # 2 weeks
                 return res
 
@@ -483,11 +510,13 @@ class AppSignInView(APIView):
             status=status.HTTP_200_OK,
         )
 
-        # TODO: secure, http-only
         res.set_cookie(
             settings.SIMPLE_JWT["AUTH_COOKIE"],
             refresh_token,
-            max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
+            max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"]
+            httponly=True,
+            secure=True,
+            samesite=None
         )  # 7 days
         return res
 
