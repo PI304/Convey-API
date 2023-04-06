@@ -49,7 +49,7 @@ class UserService(object):
             )
 
     @staticmethod
-    def decrypt_body(json_data: str) -> dict:
+    def decrypt_body(json_data: dict) -> dict:
         cipher = AESCipher()
         request_data = json_data.get("data", None)
         data_bytes = request_data.encode()

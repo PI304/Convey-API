@@ -75,7 +75,12 @@ MIDDLEWARE = [
     "silk.middleware.SilkyMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://13.209.218.50", "https://convey.works", "https://www.concey.works"]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://13.209.218.50",
+    "https://convey.works",
+    "https://www.convey.works",
+]
 CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "config.urls"
