@@ -175,6 +175,7 @@ class SurveyPackageAnswerDownloadView(APIView):
                 required=True,
             ),
         ],
+        responses={200: "download success"},
     )
     def get(self, request, pk, format=None) -> HttpResponse:
         instance: WorkspaceComposition = self.get_object(pk)
@@ -197,7 +198,7 @@ class SurveyPackageAnswerDownloadView(APIView):
         response = HttpResponse(
             content=stream,
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            status=204,
+            status=200,
         )
         response.headers[
             "Content-Disposition"
