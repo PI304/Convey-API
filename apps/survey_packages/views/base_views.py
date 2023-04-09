@@ -347,7 +347,7 @@ class SurveyPackageDownloadView(APIView):
                 required=True,
             ),
         ],
-        responses={204: "download success"},
+        responses={200: "download success"},
     )
     def get(self, request, pk, format=None) -> HttpResponse:
         try:
@@ -370,7 +370,7 @@ class SurveyPackageDownloadView(APIView):
         response = HttpResponse(
             content=stream,
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            status=204,
+            status=200,
         )
         response.headers[
             "Content-Disposition"
