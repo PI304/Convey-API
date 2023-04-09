@@ -378,7 +378,10 @@ class EmailConfirmation(APIView):
         if unsigned_code_cookie == code_input:
             res = Response(status=status.HTTP_204_NO_CONTENT)
             if "email_confirmation_code" in request.COOKIES:
-                res.delete_cookie("email_verification_code")
+                res.delete_cookie(
+                    "email_verification_code",
+                    samesite="None",
+                )
             res.set_cookie(
                 "email_confirmation",
                 "complete",
@@ -485,9 +488,9 @@ class AppSignInView(APIView):
         },
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        decrypted_data = UserService.decrypt_body(request.data)
-
-        if len(decrypted_data) != 3:
+        try:
+            decrypted_data = UserService.decrypt_body(request.data)
+        except ValueError as e:
             raise InvalidInputException(
                 "body should include 'name', 'email' and 'socialProvider'"
             )
@@ -538,9 +541,9 @@ class AppSignUpView(APIView):
         ),
     )
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        decrypted_data = UserService.decrypt_body(request.data)
-
-        if len(decrypted_data) != 4:
+        try:
+            decrypted_data = UserService.decrypt_body(request.data, total_len=4)
+        except ValueError as e:
             raise InvalidInputException(
                 "body should include 'name', 'email', 'socialProvider' and 'privacyPolicyAgreed' fields"
             )
