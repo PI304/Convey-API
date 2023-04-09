@@ -9,7 +9,9 @@ tail -n 0 -f gunicorn*.log &
 
 export DJANGO_SETTINGS_MODULE=config.settings.deploy
 
+cd /home/convey
 python3 manage.py migrate || exit 1
+
 exec gunicorn config.wsgi.deploy:application \
     --name convey \
     --bind 0.0.0.0:8080 \
