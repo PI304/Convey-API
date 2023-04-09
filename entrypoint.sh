@@ -2,9 +2,10 @@
 
 # Prepare log files and start outputting logs to stdout
 mkdir logs
-touch ./logs/gunicorn.log
-touch ./logs/gunicorn-access.log
-tail -n 0 -f ./logs/gunicorn*.log &
+cd logs
+touch gunicorn.log
+touch gunicorn-access.log
+tail -n 0 -f gunicorn*.log &
 
 export DJANGO_SETTINGS_MODULE=config.settings.deploy
 
