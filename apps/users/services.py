@@ -50,11 +50,9 @@ class UserService(object):
             )
 
     @staticmethod
-    def decrypt_body(json_data: dict, total_len: int = 3) -> dict:
+    def decrypt_body(bytes_data: bytes, total_len: int = 3) -> dict:
         cipher = AESCipher()
-        request_data = json_data.get("data", None)
-        data_bytes = request_data.encode()
-        data_json: str = cipher.decrypt(data_bytes)
+        data_json: str = cipher.decrypt(bytes_data)
         decrypted_data = json.loads(data_json)
 
         if total_len != len(decrypted_data):
