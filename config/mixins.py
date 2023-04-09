@@ -6,8 +6,8 @@ class TimeStampMixin(models.Model):
     abstract timestamp mixin base model for created_at, updated_at field
     """
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
     class Meta:
         abstract = True
