@@ -25,6 +25,7 @@ class UserService(object):
         self.user.is_deleted = True
         self.user.deleted_at = datetime.now()
         self.user.save(update_fields=["is_deleted", "deleted_at"])
+        logger.info(f"User <{self.user.email}> is deactivated")
         return self.user
 
     @staticmethod
@@ -54,10 +55,8 @@ class UserService(object):
 
     @staticmethod
     def decrypt_body(bytes_data: bytes, total_len: int = 3) -> dict:
-        logger.debug(f"byte data received: {bytes_data}")
         cipher = AESCipher()
         data_json: str = cipher.decrypt(bytes_data)
-        logger.debug(f"decrypted: {data_json}")
         decrypted_data = json.loads(data_json)
 
         if total_len != len(decrypted_data):
