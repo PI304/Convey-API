@@ -43,7 +43,6 @@ from config.permissions import IsOwnerOrReadOnly
     ),
 )
 class WorkspaceListView(generics.ListCreateAPIView):
-    pagination_class = None
     serializer_class = WorkspaceSerializer
     queryset = Workspace.objects.all()
 
