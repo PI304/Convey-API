@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Prepare log files and start outputting logs to stdout
-mkdir logs
+mkdir -p logs
 cd logs
 touch gunicorn.log
 touch gunicorn-access.log
