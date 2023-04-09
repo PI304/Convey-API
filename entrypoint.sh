@@ -5,6 +5,7 @@ mkdir -p logs
 cd logs
 touch gunicorn.log
 touch gunicorn-access.log
+touch gunicorn-error.log
 tail -n 0 -f gunicorn*.log &
 
 export DJANGO_SETTINGS_MODULE=config.settings.deploy
@@ -19,4 +20,5 @@ exec gunicorn config.wsgi.deploy:application \
     --log-level=debug \
     --log-file=./logs/gunicorn.log \
     --access-logfile=./logs/gunicorn-access.log \
+    --error-logfile=./logs/gunicorn-error.log \
 "$@"
