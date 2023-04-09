@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from typing import Any
 
 from django.contrib.auth.models import update_last_login
@@ -490,6 +491,8 @@ class AppSignInView(APIView):
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         try:
             decrypted_data = UserService.decrypt_body(request.data)
+        except JSONDecodeError as e:
+            raise InvalidInputException(e.msg)
         except ValueError as e:
             raise InvalidInputException(
                 "body should include 'name', 'email' and 'socialProvider'"
