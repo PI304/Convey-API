@@ -10,6 +10,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
+from config.exceptions import InvalidInputException
 from utils.body_encryption import AESCipher
 
 
@@ -49,14 +50,15 @@ class UserService(object):
             )
 
     @staticmethod
-    def decrypt_body(json_data: dict) -> dict:
+    def decrypt_body(json_data: dict, total_len: int = 3) -> dict:
         cipher = AESCipher()
         request_data = json_data.get("data", None)
         data_bytes = request_data.encode()
-        hex_data = data_bytes[2:-1]
-
-        data_json: str = cipher.decrypt(hex_data)
+        data_json: str = cipher.decrypt(data_bytes)
         decrypted_data = json.loads(data_json)
+
+        if total_len != len(decrypted_data):
+            raise ValueError("invalid length of data")
 
         decrypted_data["social_provider"] = decrypted_data["socialProvider"]
         del decrypted_data["socialProvider"]
