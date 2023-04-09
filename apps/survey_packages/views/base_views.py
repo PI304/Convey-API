@@ -32,11 +32,13 @@ from apps.survey_packages.services import (
 )
 from apps.surveys.models import SectorQuestion, Survey, SurveySector
 from apps.workspaces.models import Routine, Workspace
+from config.custom_pagination import CustomPagination
 from config.exceptions import (
     InstanceNotFound,
     UnprocessableException,
     InvalidInputException,
 )
+from config.paginator_inspector import CustomPaginationInspector
 from config.permissions import AdminOnly, IsAuthorOrReadOnly
 
 
@@ -44,6 +46,8 @@ from config.permissions import AdminOnly, IsAuthorOrReadOnly
     name="get",
     decorator=swagger_auto_schema(
         operation_summary="요청을 보내는 유저가 만든 모든 survey package 를 가져옵니다",
+        pagination_class=CustomPagination,
+        paginator_inspectors=[CustomPaginationInspector],
     ),
 )
 class SurveyPackageListView(generics.ListCreateAPIView):
