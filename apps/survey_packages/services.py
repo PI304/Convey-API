@@ -303,7 +303,6 @@ class SurveyPackageExportService(object):
 
     def _add_row(self, row_data: dict):
         self.worksheet.append(list(row_data.values()))
-        print("appended row")
 
     def _add_question(self, question_data: SectorQuestion, row_data: dict):
         row_data = dict(
