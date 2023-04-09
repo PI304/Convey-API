@@ -73,6 +73,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "djangorestframework_camel_case.middleware.CamelCaseMiddleWare",
     "silk.middleware.SilkyMiddleware",
+    "config.middlewares.content_type.ContentTypeMiddleware",
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -152,6 +153,7 @@ REST_FRAMEWORK = {
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",
         "nested_multipart_parser.drf.DrfNestedParser",
         "rest_framework.parsers.MultiPartParser",
+        "config.octet_stream_parser.OctetStreamParser",
     ],
     "TEST_REQUEST_RENDERER_CLASSES": [
         "rest_framework.renderers.MultiPartRenderer",

@@ -467,7 +467,7 @@ class AppSignInView(APIView):
 
     @swagger_auto_schema(
         operation_summary="앱 사용자를 위한 로그인",
-        operation_description="AES256 방식을 사용하여 body 를 통째로 암호화 합니다.",
+        operation_description="AES256 방식을 사용하여 body 를 통째로 암호화 합니다. Request 의 content-type 은 application/octet-stream 으로 지정합니다.",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             required=["data"],
@@ -528,7 +528,7 @@ class AppSignUpView(APIView):
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="앱 사용자들을 위한 회원가입, 회원의 정보를 보냅니다",
+        operation_summary="앱 사용자들을 위한 회원가입, 회원의 정보를 보냅니다. Request 의 content-type 은 application/octet-stream 으로 지정합니다.",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             required=["data"],
