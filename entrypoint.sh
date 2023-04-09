@@ -16,7 +16,7 @@ exec gunicorn config.wsgi.deploy:application \
     --name convey \
     --bind 0.0.0.0:8080 \
     --workers 1 \
-    --log-level=info \
+    --log-level=debug \
     --log-file=./logs/gunicorn.log \
     --access-logfile=./logs/gunicorn-access.log \
 "$@"
