@@ -4,6 +4,9 @@ COPY ./ /home/convey/
 
 WORKDIR /home/convey/
 
+RUN mkdir -p config/logs
+RUN touch config/logs/convey.log
+
 RUN apt-get update
 
 RUN pip install --no-cache-dir -r requirements.txt
