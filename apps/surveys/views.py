@@ -16,6 +16,8 @@ from apps.surveys.serializers import (
     SurveySectorSerializer,
 )
 from apps.surveys.services import SurveyService
+from config.custom_pagination import CustomPagination
+from config.paginator_inspector import CustomPaginationInspector
 from config.permissions import AdminOnly, IsAdminOrReadOnly, IsAuthorOrReadOnly
 
 
@@ -23,7 +25,8 @@ from config.permissions import AdminOnly, IsAdminOrReadOnly, IsAuthorOrReadOnly
     name="get",
     decorator=swagger_auto_schema(
         operation_summary="요청을 보내는 유저가 만든 모든 survey 를 가져옵니다",
-        responses={200: SimpleSurveySerializer(many=True)},
+        pagination_class=CustomPagination,
+        paginator_inspectors=[CustomPaginationInspector],
     ),
 )
 class SurveyListView(generics.ListCreateAPIView):

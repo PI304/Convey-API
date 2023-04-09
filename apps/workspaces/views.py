@@ -26,6 +26,7 @@ from apps.workspaces.serializers import (
     RoutineDetailSerializer,
 )
 from apps.workspaces.services import RoutineService, WorkspaceService
+from config.custom_pagination import CustomPagination
 from config.exceptions import (
     InstanceNotFound,
     ConflictException,
@@ -33,6 +34,7 @@ from config.exceptions import (
     DuplicateInstance,
     UnprocessableException,
 )
+from config.paginator_inspector import CustomPaginationInspector
 from config.permissions import IsOwnerOrReadOnly
 
 
@@ -40,6 +42,8 @@ from config.permissions import IsOwnerOrReadOnly
     name="get",
     decorator=swagger_auto_schema(
         operation_summary="요청을 보내는 유저의 모든 workspace 를 가져옵니다",
+        pagination_class=CustomPagination,
+        paginator_inspectors=[CustomPaginationInspector],
     ),
 )
 class WorkspaceListView(generics.ListCreateAPIView):
