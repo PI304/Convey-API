@@ -8,6 +8,7 @@ urlpatterns = [
         "/login/admin", auth_views.BasicSignInView.as_view(), name="basic_admin_login"
     ),
     path("/login/app", auth_views.AppSignInView.as_view(), name="app_login"),
+    path("/logout", auth_views.LogOutView.as_view(), name="logout"),
     path("/leave", auth_views.SecessionView.as_view(), name="basic_leave"),
 ]
 

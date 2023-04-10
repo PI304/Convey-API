@@ -11,7 +11,6 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User
-from config.exceptions import InvalidInputException
 from utils.body_encryption import AESCipher
 
 logger = logging.getLogger("convey")
@@ -72,3 +71,9 @@ class UserService(object):
             del decrypted_data["privacyPolicyAgreed"]
 
         return decrypted_data
+
+    @staticmethod
+    def blacklist_token(token: str) -> None:
+        token = RefreshToken(token)
+        token.blacklist()
+        return None

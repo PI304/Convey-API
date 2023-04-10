@@ -21,7 +21,11 @@ from apps.survey_packages.serializers import (
 )
 from apps.surveys.models import QuestionAnswer, SurveySector, SectorQuestion
 from apps.workspaces.models import Workspace, RoutineDetail
-from config.exceptions import InvalidInputException, InternalServerError
+from config.exceptions import (
+    InvalidInputException,
+    InternalServerError,
+    InstanceNotFound,
+)
 
 
 class SurveyPackageService(object):
@@ -249,6 +253,9 @@ class ResponseExportService(object):
             )
         )
 
+        if queryset.count() == 0:
+            raise InstanceNotFound("no response data")
+
         for part in queryset:
             self._add_part_data(part)
 
@@ -375,6 +382,9 @@ class SurveyPackageExportService(object):
     def export_to_workbook(self):
         self._create_worksheet_template()
         queryset = self._get_queryset()
+
+        if queryset.count() == 0:
+            raise InstanceNotFound("no data below this survey package")
 
         for part in queryset:
             self._add_part(part)
