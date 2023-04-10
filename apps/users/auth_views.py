@@ -3,18 +3,16 @@ from typing import Any
 
 from django.contrib.auth.models import update_last_login
 from django.core.signing import Signer
-from django.http import JsonResponse, Http404
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from datetime import datetime
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from config.settings import base as settings
 from config.exceptions import (
@@ -22,9 +20,8 @@ from config.exceptions import (
     UnprocessableException,
     ConflictException,
     InvalidInputException,
+    InternalServerError,
 )
-from config.renderer import CustomRenderer
-from utils.body_encryption import AESCipher
 from .models import User
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -144,25 +141,37 @@ class BasicSignInView(APIView):
             max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
             httponly=True,
             secure=True,
-            samesite="None",
+            samesite="Lax",
+            domain="convey.works",
         )  # 7 days
         return res
 
 
 class SecessionView(APIView):
-    serializer = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
         operation_summary="계정 탈퇴",
-        responses={200: openapi.Response("user", UserSerializer)},
+        responses={205: "successfully deactivated user"},
     )
     def post(self, request, *args, **kwargs):
+        # Deactivate user
         service = UserService(request.user)
-        user = service.deactivate_user()
-        serializer = UserSerializer(user)
+        service.deactivate_user()
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Blacklist refresh token
+        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE"], None)
+        UserService.blacklist_token(refresh_token)
+
+        # Delete refresh token cookie
+        res = Response(status=status.HTTP_205_RESET_CONTENT)
+        res.delete_cookie(
+            settings.SIMPLE_JWT["AUTH_COOKIE"],
+            samesite="Lax",
+            domain="convey.works",
+        )
+
+        return res
 
 
 class CheckDuplicateUsernameView(APIView):
@@ -204,7 +213,8 @@ class CheckDuplicateUsernameView(APIView):
             max_age=3600,
             httponly=True,
             secure=True,
-            samesite="None",
+            samesite="Lax",
+            domain="convey.works",
         )
 
         return res
@@ -250,7 +260,7 @@ class PasswordChangeView(APIView):
 
 
 class PasswordResetView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
         operation_summary="비밀번호를 초기화합니다. 랜덤한 문자열이 임시 비밀번호로 설정되며 이메일로 전송됩니다",
@@ -286,10 +296,7 @@ class PasswordResetView(APIView):
         if success > 0:
             return Response(status=status.HTTP_200_OK)
         elif success == 0:
-            return Response(
-                {"detail": "Failed to send email. Try again later."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise InternalServerError("Failed to send email. Try again later")
 
 
 class EmailVerification(APIView):
@@ -327,7 +334,8 @@ class EmailVerification(APIView):
             max_age=300,
             httponly=True,
             secure=True,
-            samesite="None",
+            samesite="Lax",
+            domain="convey.works",
         )
 
         # send email
@@ -341,12 +349,7 @@ class EmailVerification(APIView):
         if success > 0:
             return res
         elif success == 0:
-            return Response(
-                {
-                    "detail": "Failed to send email. Try again later or try with a valid email."
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise InternalServerError("Failed to send email. Try again later")
 
 
 class EmailConfirmation(APIView):
@@ -381,7 +384,8 @@ class EmailConfirmation(APIView):
             if "email_confirmation_code" in request.COOKIES:
                 res.delete_cookie(
                     "email_verification_code",
-                    samesite="None",
+                    samesite="Lax",
+                    domain="convey.works",
                 )
             res.set_cookie(
                 "email_confirmation",
@@ -389,7 +393,8 @@ class EmailConfirmation(APIView):
                 max_age=600,
                 httponly=True,
                 secure=True,
-                samesite="None",
+                samesite="Lax",
+                domain="convey.works",
             )
             return res
         else:
@@ -397,8 +402,7 @@ class EmailConfirmation(APIView):
 
 
 class TokenRefreshView(APIView):
-    permission_classes = [AllowAny]
-    renderer_classes = [CustomRenderer]
+    permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
         operation_summary="Refresh token",
@@ -420,12 +424,11 @@ class TokenRefreshView(APIView):
                     )
                 },
             ),
+            204: "Access token not expired",
             401: "Authentication Failed",
         },
     )
     def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE"]) or None
-        print(request.META.get("HTTP_COOKIE"))
         access_token = request.META.get("HTTP_AUTHORIZATION") or None
 
         # authenticate() verifies and decode the token
@@ -435,9 +438,7 @@ class TokenRefreshView(APIView):
 
         try:
             access_token_validation = access_token_authenticator.authenticate(request)
-            return Response(
-                "Access token not expired", status=status.HTTP_204_NO_CONTENT
-            )
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except InvalidToken:
             # access_token is invalid
             try:
@@ -455,7 +456,8 @@ class TokenRefreshView(APIView):
                     max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
                     httponly=True,
                     secure=True,
-                    samesite="None",
+                    samesite="Lax",
+                    domain="convey.works",
                 )  # 2 weeks
                 return res
 
@@ -522,7 +524,8 @@ class AppSignInView(APIView):
             max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
             httponly=True,
             secure=True,
-            samesite="None",
+            samesite="Lax",
+            domain="convey.works",
         )  # 7 days
         return res
 
@@ -567,3 +570,29 @@ class AppSignUpView(APIView):
                 serializer.save()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class LogOutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="로그아웃",
+    )
+    def post(self, request, *args, **kwargs) -> Response:
+        try:
+            refresh_token = request.COOKIES.get(
+                settings.SIMPLE_JWT["AUTH_COOKIE"], None
+            )
+
+            UserService.blacklist_token(refresh_token)
+
+            res = Response(status=status.HTTP_205_RESET_CONTENT)
+            res.delete_cookie(
+                settings.SIMPLE_JWT["AUTH_COOKIE"],
+                samesite="Lax",
+                domain="convey.works",
+            )
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except TokenError as e:
+            raise AuthenticationFailed("invalid refresh token")
