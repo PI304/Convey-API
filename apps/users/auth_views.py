@@ -403,6 +403,7 @@ class EmailConfirmation(APIView):
 
 class TokenRefreshView(APIView):
     permission_classes = [permissions.AllowAny]
+    authentication_classes = [RefreshTokenAuthentication]
 
     @swagger_auto_schema(
         operation_summary="Refresh token",
@@ -429,25 +430,17 @@ class TokenRefreshView(APIView):
         },
     )
     def post(self, request, *args, **kwargs):
-        access_token = request.META.get("HTTP_AUTHORIZATION") or None
-
-        # authenticate() verifies and decode the token
-        # if token is invalid, it raises an exception and returns 401
-        refresh_token_authenticator = RefreshTokenAuthentication()
         access_token_authenticator = JWTAuthentication()
 
         try:
             access_token_validation = access_token_authenticator.authenticate(request)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except InvalidToken:
+        except InvalidToken or AuthenticationFailed:
             # access_token is invalid
             try:
-                user, validated_token = refresh_token_authenticator.authenticate(
-                    request
-                )
-                new_access, new_refresh = UserService.generate_tokens(user)
+                new_access, new_refresh = UserService.generate_tokens(request.user)
                 res = Response(
-                    dict(access_token=new_access, refresh_token=new_refresh),
+                    dict(access_token=new_access),
                     status=status.HTTP_201_CREATED,
                 )
                 res.set_cookie(
@@ -456,9 +449,9 @@ class TokenRefreshView(APIView):
                     max_age=settings.SIMPLE_JWT["AUTH_COOKIE_EXPIRES"],
                     httponly=True,
                     secure=True,
-                    samesite="Lax",
                     domain="convey.works",
-                )  # 2 weeks
+                    samesite="Lax",
+                )
                 return res
 
             except InvalidToken:
