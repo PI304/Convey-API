@@ -1,8 +1,8 @@
-from django.core.exceptions import BadRequest
 from rest_framework.views import exception_handler
 from rest_framework import exceptions
 from django.http import Http404
 from rest_framework.exceptions import APIException, ValidationError
+from rest_framework_simplejwt.exceptions import InvalidToken
 
 
 class InstanceNotFound(APIException):
@@ -107,6 +107,8 @@ def custom_exception_handler(exc, context):
         elif isinstance(exc, exceptions.UnsupportedMediaType):
             customized_response = {"code": response.status_code, "detail": exc.detail}
         elif isinstance(exc, exceptions.AuthenticationFailed):
+            customized_response = {"code": response.status_code, "detail": exc.detail}
+        elif isinstance(exc, InvalidToken):
             customized_response = {"code": response.status_code, "detail": exc.detail}
         elif isinstance(exc, exceptions.PermissionDenied):
             customized_response = {"code": response.status_code, "detail": exc.detail}
