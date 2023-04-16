@@ -79,6 +79,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://13.209.218.50",
+    "http://convey.works",
     "https://convey.works",
     "https://www.convey.works",
 ]
