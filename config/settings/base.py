@@ -78,12 +78,13 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://13.209.218.50",
     "http://convey.works",
+    "http://www.convey.works",
     "https://convey.works",
     "https://www.convey.works",
 ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ["Set-Cookie"]
 
 ROOT_URLCONF = "config.urls"
 
